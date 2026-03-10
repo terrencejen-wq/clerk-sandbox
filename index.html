@@ -55,20 +55,24 @@
         .limit-text { color: var(--limit-color); font-weight: 900; transition: 0.3s; }
         .limit-text.violation { background: var(--danger); color: white; padding: 2px 6px; border-radius: 4px; }
         
-        /* 拉桿區 */
-        .slider-group-box { background: #FAFAFA; border: 2px solid #E0E0E0; border-radius: 8px; padding: 12px; margin-bottom: 15px; transition: all 0.3s;}
+        /* === 拉桿區 (核心優化) === */
+        .slider-group-box { background: #FAFAFA; border: 2px solid #E0E0E0; border-radius: 8px; padding: 15px 12px; margin-bottom: 15px; transition: all 0.3s;}
         .slider-group-box.warning-border { border-color: var(--danger); background-color: #FFEBEE; box-shadow: inset 0 0 8px rgba(211,47,47,0.1);}
 
-        .slider-group-title { font-size: 15px; font-weight: 900; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid; padding-left: 8px;}
+        .slider-group-title { font-size: 15px; font-weight: 900; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid; padding-left: 8px;}
         .slider-group-title.gold { color: var(--primary-gold); border-color: var(--primary-gold); } .slider-group-title.teal { color: var(--primary-teal); border-color: var(--primary-teal); } .slider-group-title.navy { color: var(--primary-navy); border-color: var(--primary-navy); }
-        .slider-row { display: grid; grid-template-columns: 1fr 65px; gap: 10px; align-items: center; margin-bottom: 8px; }
-        .slider-row:last-child { margin-bottom: 0; }
-        .slider-label { font-size: 13px; font-weight: 700; margin-bottom: 2px; display: block; color: #555; }
         
-        input[type="range"] { width: 100%; height: 6px; border-radius: 3px; background: #ccc; outline: none; -webkit-appearance: none; }
+        /* 使用 flex-end 讓數字框與拉桿對齊底部，配置 80px 給數字框 */
+        .slider-row { display: grid; grid-template-columns: 1fr 80px; gap: 15px; align-items: flex-end; margin-bottom: 12px; }
+        .slider-row:last-child { margin-bottom: 0; }
+        .slider-label { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: block; color: #555; }
+        
+        input[type="range"] { width: 100%; height: 6px; border-radius: 3px; background: #ccc; outline: none; -webkit-appearance: none; margin-bottom: 6px; /* 為了對齊數字框稍微拉抬 */ }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .range-gold::-webkit-slider-thumb { background: var(--primary-gold); } .range-teal-dark::-webkit-slider-thumb { background: var(--primary-teal); } .range-teal-light::-webkit-slider-thumb { background: var(--teal-light); } .range-navy-dark::-webkit-slider-thumb { background: var(--primary-navy); } .range-navy-medium::-webkit-slider-thumb { background: var(--navy-medium); } .range-navy-light::-webkit-slider-thumb { background: var(--navy-light); }
-        .number-input { width: 100%; padding: 6px 4px; border: 1px solid #ccc; border-radius: 6px; text-align: center; font-weight: 900; font-size: 15px; }
+        
+        /* 加入 min-width: 0 破解瀏覽器預設撐破網格的限制 */
+        .number-input { width: 100%; min-width: 0; padding: 6px 4px; border: 1px solid #ccc; border-radius: 6px; text-align: center; font-weight: 900; font-size: 16px; color: var(--primary-navy);}
 
         /* 中欄圖表與徽章化法規區 */
         .chart-wrapper { width: 100%; flex-grow: 1; min-height: 250px; position: relative; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;}
@@ -106,7 +110,8 @@
         
         .sim-input-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .sim-input-row label { font-size: 15px; font-weight: 900; color: var(--primary-navy); }
-        .sim-input-row input { width: 75px; padding: 8px; border: 2px solid #9FA8DA; border-radius: 6px; text-align: center; font-weight: 900; font-size: 16px; color: #283593; }
+        /* 加入 min-width: 0 防護 */
+        .sim-input-row input { width: 80px; min-width: 0; padding: 8px; border: 2px solid #9FA8DA; border-radius: 6px; text-align: center; font-weight: 900; font-size: 16px; color: #283593; }
         
         .sim-right-wrapper { display: flex; flex-direction: column; height: 100%; gap: 15px;}
         
@@ -167,7 +172,7 @@
             <div class="slider-group-box" id="group-n1">
                 <div class="slider-group-title gold"><span><span class="color-dot bg-gold"></span>一等書記官</span> <span>上限: <span class="limit-text" id="info-n1">75</span></span></div>
                 <div class="slider-row">
-                    <input type="range" id="slider-n1" class="range-gold" min="0" value="20">
+                    <div style="width:100%;"><input type="range" id="slider-n1" class="range-gold" min="0" value="20"></div>
                     <input type="number" id="input-n1" class="number-input" value="20">
                 </div>
             </div>
@@ -243,7 +248,7 @@
                 <div class="decision-card-title">▶ 階段二：二等書記官遞補</div>
                 <div style="font-size: 15px; color: #E0E0E0; line-height: 1.6;">
                     預估二等將空出 <strong style="color:#fff;">[<span id="dec-n2-vacancies">0</span>]</strong> 個職缺。在極大化計算下配置如下：<br>
-                    1. 具委升薦訓練資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2t">0</span></strong> 名<br>
+                    1. 具訓練資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2t">0</span></strong> 名<br>
                     2. 具考試資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2e">0</span></strong> 名<br>
                     3. 剩餘職缺最大得提報「三等考試」：<span class="decision-highlight" id="dec-auto-e3">0</span> 名。
                 </div>
@@ -280,24 +285,39 @@
             <div class="sim-inputs-container">
                 <div class="sim-input-row">
                     <label>內升一等 (從二等)</label>
-                    <div><input type="number" id="sim-p1" value="0" min="0"><div style="font-size:12px; text-align:right; color:#7986CB; font-weight:bold;" id="sim-max-p1">Max: 0</div></div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <input type="number" id="sim-p1" value="0" min="0">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px;" id="sim-max-p1">Max: 0</div>
+                    </div>
                 </div>
                 <div class="sim-input-row">
                     <label>內升二等 (從三等訓練)</label>
-                    <div><input type="number" id="sim-p2t" value="0" min="0"><div style="font-size:12px; text-align:right; color:#7986CB; font-weight:bold;" id="sim-max-p2t">Max: 0</div></div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <input type="number" id="sim-p2t" value="0" min="0">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px;" id="sim-max-p2t">Max: 0</div>
+                    </div>
                 </div>
                 <div class="sim-input-row">
                     <label>內升二等 (從三等考試)</label>
-                    <div><input type="number" id="sim-p2e" value="0" min="0"><div style="font-size:12px; text-align:right; color:#7986CB; font-weight:bold;" id="sim-max-p2e">Max: 0</div></div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <input type="number" id="sim-p2e" value="0" min="0">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px;" id="sim-max-p2e">Max: 0</div>
+                    </div>
                 </div>
                 
                 <div class="sim-input-row">
                     <label>提列三等考試</label>
-                    <div><input type="number" id="sim-e3" value="0" min="0"><div style="font-size:12px; text-align:right; color:#7986CB; font-weight:bold;" id="sim-max-e3">Max: 0</div></div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <input type="number" id="sim-e3" value="0" min="0">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px;" id="sim-max-e3">Max: 0</div>
+                    </div>
                 </div>
                 <div class="sim-input-row">
                     <label>提列四等考試</label>
-                    <div><input type="number" id="sim-e4" value="0" min="0"><div style="font-size:12px; text-align:right; color:#7986CB; font-weight:bold;" id="sim-max-e4">Max: 0</div></div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <input type="number" id="sim-e4" value="0" min="0">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px;" id="sim-max-e4">Max: 0</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -307,7 +327,7 @@
                 <div style="position: relative; width:100%; min-height:280px; display:flex; align-items:center; justify-content:center;">
                     <canvas id="simPieChart"></canvas>
                     <div class="chart-center-text">
-                        <div style="font-size: 14px; font-weight: 700; color: #777;">試算總數</div>
+                        <div style="font-size: 14px; font-weight: 700; color: #777;">模擬總數</div>
                         <div style="font-size: 36px; font-weight: 900; color: var(--primary-navy); line-height: 1;" id="sim-center-sum">0</div>
                     </div>
                 </div>
@@ -570,7 +590,6 @@
         let sE3 = getVal('sim-e3'), sE4 = getVal('sim-e4');
 
         // --- 動態計算 E3 與 E4 的浮動上限 ---
-        // 三等考試上限：二等剩下的空缺 vs 整個機關剩餘空缺 (扣除使用者自訂的 sE4)
         const max_sim_e3_capacity = Math.max(0, max_D - n2Total + sP1 - sP2t - sP2e); 
         let max_sim_e3 = Math.max(0, Math.min(remain - sE4, max_sim_e3_capacity));
         
@@ -579,14 +598,12 @@
             simE3El.value = sE3;
         }
         
-        // 四等考試上限：整個機關剩下的空缺 (扣除剛算好的 sE3)
         let max_sim_e4 = Math.max(0, remain - sE3);
         if (sE4 > max_sim_e4) {
             sE4 = max_sim_e4;
             simE4El.value = sE4;
         }
         
-        // 確保使用者如果亂調 E4 時，E3 的顯示 Max 也是對的
         max_sim_e3 = Math.max(0, Math.min(remain - sE4, max_sim_e3_capacity));
         
         setTxt('sim-max-e3', `Max: ${max_sim_e3}`);
