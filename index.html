@@ -171,7 +171,7 @@
             <div class="subtitle">v2.0</div>
             
             <div class="header-warning">
-                ⚠ <b>備註：</b>「法院書記官員額受列管」、「一等書記官人數少於設科數」以及「二等書記官未滿2人」等情形，不完全適用本試算系統，法院須自行檢視確認。
+                ⚠ <b>備註：</b>「法院書記官員額受列管」或依司法院函不適用上限之但書情形，不完全適用本試算系統，法院須自行檢視確認。
             </div>
 
         </div>
@@ -183,7 +183,7 @@
 
     <div class="kpi-row">
         <div class="kpi-card gold" id="kpi-box-n1">
-            <div class="kpi-label">一等書記官空間 (N1)</div>
+            <div class="kpi-label">一等書記官 (N1)</div>
             <div class="kpi-value" id="kpi-n1">20</div>
             <div class="kpi-subtext">現有人數</div>
             <div class="kpi-limit-box">
@@ -299,7 +299,7 @@
                 <div style="font-size: 15px; color: #E0E0E0; line-height: 1.6;">
                     預估二等最大可用職缺為 <strong style="color:#fff;">[<span id="dec-n2-vacancies">0</span>]</strong> 個。極大化計算配置如下：<br>
                     1. 具委升薦訓練資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2t">0</span></strong> 名<br>
-                    2. 具考試資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2e">0</span></strong> 名<br>
+                    2. 具升薦任考試資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2e">0</span></strong> 名<br>
                     3. 剩餘最大得提報「三等考試」：<span class="decision-highlight" id="dec-auto-e3">0</span> 名。
                 </div>
             </div>
@@ -344,14 +344,14 @@
                     </div>
                 </div>
                 <div class="sim-input-row">
-                    <label>內升二等 (從三等訓練)</label>
+                    <label>內升二等 (從具升薦任訓練資格)</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
                         <input type="number" id="sim-p2t" value="0" min="0" onfocus="this.select()">
                         <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p2t">Max: 0</div>
                     </div>
                 </div>
                 <div class="sim-input-row">
-                    <label>內升二等 (從三等考試)</label>
+                    <label>內升二等 (從具升薦任考試資格)</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
                         <input type="number" id="sim-p2e" value="0" min="0" onfocus="this.select()">
                         <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p2e">Max: 0</div>
@@ -488,7 +488,7 @@
         mainChart = new Chart(ctxMain, {
             type: 'doughnut',
             data: {
-                labels: ['一等', '二等(考試)', '二等(訓練)', '三等(考試)', '三等(訓練)', '三等(無資格)', '未分配'],
+                labels: ['一等', '二等(考試)', '二等(訓練)', '三等(考試)', '三等(訓練)', '三等(未具派二書資格)', '未分配'],
                 datasets: [
                     { data: [0,0,0,0,0,0,0], backgroundColor: ['rgba(197, 160, 89, 0.2)', 'rgba(0, 137, 123, 0.2)', 'transparent', 'rgba(26, 47, 76, 0.05)', 'transparent', 'transparent', 'transparent'], borderWidth: 1, borderColor: '#fff', weight: 0.25 },
                     { data: [0,0,0,0,0,0,0], backgroundColor: ['#C5A059', '#00897B', '#4DB6AC', '#1A2F4C', '#455A64', '#90A4AE', '#E0E0E0'], borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }
@@ -500,7 +500,7 @@
         simPieChart = new Chart(ctxSimPie, {
             type: 'doughnut',
             data: { 
-                labels: ['一等', '二等(考試)', '二等(訓練)', '三等(考試)', '三等(訓練)', '三等(無資格)', '未分配'],
+                labels: ['一等', '二等(考試)', '二等(訓練)', '三等(考試)', '三等(訓練)', '三等(未具派二書資格)', '未分配'],
                 datasets: [
                     { data: [0,0,0,0,0,0,0], backgroundColor: ['rgba(197, 160, 89, 0.2)', 'rgba(0, 137, 123, 0.2)', 'transparent', 'rgba(26, 47, 76, 0.05)', 'transparent', 'transparent', 'transparent'], borderWidth: 1, borderColor: '#fff', weight: 0.25 },
                     { data: [0,0,0,0,0,0,0], backgroundColor: ['#C5A059', '#00897B', '#4DB6AC', '#1A2F4C', '#455A64', '#90A4AE', '#E0E0E0'], borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }
@@ -520,7 +520,7 @@
                     { label: '二等(訓練)', data: Array(8).fill(0), backgroundColor: '#4DB6AC' },
                     { label: '三等(考試)', data: Array(8).fill(0), backgroundColor: '#1A2F4C' },
                     { label: '三等(訓練)', data: Array(8).fill(0), backgroundColor: '#455A64' },
-                    { label: '三等(無資格)', data: Array(8).fill(0), backgroundColor: '#90A4AE' }
+                    { label: '三等(未具派二書資格)', data: Array(8).fill(0), backgroundColor: '#90A4AE' }
                 ]
             },
             options: {
