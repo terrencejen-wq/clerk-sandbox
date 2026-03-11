@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法院書記官內升及提列考試人數動態估算系統 (v3.4)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-navy: #1A2F4C;
+            --primary-gold: #C5A059;
+            --primary-teal: #00897B;
+            --teal-light: #4DB6AC; 
+            --navy-medium: #455A64; 
+            --navy-light: #90A4AE; 
+            --bg-color: #F4F5F7;
+            --white: #FFFFFF;
+            --danger: #D32F2F;
+            --success: #2E7D32;
+            --limit-color: #D32F2F; 
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; color: #333; }
+        .dashboard-container { max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+        /* 頂部標題 */
+        .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background: var(--primary-navy); padding: 20px 30px; border-radius: 12px; box-shadow: var(--shadow); border-bottom: 5px solid var(--primary-gold); color: var(--white); gap: 15px;}
+        .header h1 { margin: 0; font-size: clamp(20px, 2vw, 26px); font-weight: 900; letter-spacing: 1px;}
+        .header .subtitle { font-size: 15px; color: #CFD8DC; margin-top: 5px; font-weight: 500;}
+        
+        /* 頂部備註框樣式 */
+        .header-warning {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #FFCDD2;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 4px solid #E53935;
+            display: inline-block;
+            line-height: 1.4;
+            font-weight: 500;
+            max-width: 100%;
+        }
+
+        .total-input-wrapper { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 8px; flex-wrap: wrap;}
+        .total-input-wrapper label { font-size: 18px; font-weight: 700; }
+        .number-input-large { width: 120px; padding: 8px; border: 2px solid var(--primary-gold); border-radius: 6px; text-align: center; font-weight: 900; font-size: 22px; color: var(--primary-navy); }
+
+        /* KPI 卡片 */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .kpi-card { background: var(--white); padding: 15px 20px; border-radius: 12px; box-shadow: var(--shadow); text-align: center; position: relative; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: center; min-height: 130px;}
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; border-radius: 12px 12px 0 0; }
+        .kpi-card.gold::before { background: var(--primary-gold); } .kpi-card.teal::before { background: var(--primary-teal); } .kpi-card.navy::before { background: var(--primary-navy); } .kpi-card.danger::before { background: var(--danger); }
+        .kpi-label { font-size: 16px; font-weight: 900; color: #555; }
+        .kpi-value { font-size: clamp(32px, 3vw, 40px); font-weight: 900; margin: 8px 0 4px 0; line-height: 1; }
+        .gold .kpi-value { color: var(--primary-gold); } .teal .kpi-value { color: var(--primary-teal); } .navy .kpi-value { color: var(--primary-navy); }
+        .kpi-subtext { font-size: 13px; color: #777; margin-bottom: 8px; font-weight: 700;}
+        .kpi-limit-box { display: flex; justify-content: space-around; font-size: 14px; font-weight: 700; background: #FAFAFA; padding: 6px; border-radius: 6px; border: 1px solid #E0E0E0;}
+        .limit-val { color: var(--danger); font-weight: 900; }
+        .remain-val { color: var(--primary-teal); font-weight: 900; }
+
+        /* 上半部排版 */
+        .top-layout { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr) minmax(360px, 1.5fr); gap: 20px; align-items: stretch; }
+        .panel-box { background: var(--white); padding: 22px; border-radius: 12px; box-shadow: var(--shadow); display: flex; flex-direction: column;}
+        .section-title { font-size: 18px; font-weight: 900; margin-bottom: 15px; color: var(--primary-navy); border-bottom: 3px solid var(--bg-color); padding-bottom: 10px; }
+        
+        .limit-text { color: var(--limit-color); font-weight: 900; transition: 0.3s; }
+        .limit-text.violation { background: var(--danger); color: white; padding: 2px 6px; border-radius: 4px; }
+        
+        /* 拉桿區 */
+        .slider-group-box { background: #FAFAFA; border: 2px solid #E0E0E0; border-radius: 8px; padding: 15px 12px; margin-bottom: 15px; transition: all 0.3s;}
+        .slider-group-box.warning-border { border-color: var(--danger); background-color: #FFEBEE; box-shadow: inset 0 0 8px rgba(211,47,47,0.1);}
+
+        .slider-group-title { font-size: 15px; font-weight: 900; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid; padding-left: 8px;}
+        .slider-group-title.gold { color: var(--primary-gold); border-color: var(--primary-gold); } .slider-group-title.teal { color: var(--primary-teal); border-color: var(--primary-teal); } .slider-group-title.navy { color: var(--primary-navy); border-color: var(--primary-navy); }
+        
+        .slider-row { display: grid; grid-template-columns: 1fr 80px; gap: 15px; align-items: flex-end; margin-bottom: 12px; }
+        .slider-row:last-child { margin-bottom: 0; }
+        .slider-label { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: block; color: #555; }
+        
+        input[type="range"] { width: 100%; height: 6px; border-radius: 3px; background: #ccc; outline: none; -webkit-appearance: none; margin-bottom: 6px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .range-gold::-webkit-slider-thumb { background: var(--primary-gold); } .range-teal-dark::-webkit-slider-thumb { background: var(--primary-teal); } .range-teal-light::-webkit-slider-thumb { background: var(--teal-light); } .range-navy-dark::-webkit-slider-thumb { background: var(--primary-navy); } .range-navy-medium::-webkit-slider-thumb { background: var(--navy-medium); } .range-navy-light::-webkit-slider-thumb { background: var(--navy-light); }
+        
+        .number-input { width: 100%; min-width: 0; padding: 6px 4px; border: 1px solid #ccc; border-radius: 6px; text-align: center; font-weight: 900; font-size: 16px; color: var(--primary-navy);}
+
+        /* 中欄圖表與法規區 */
+        .chart-wrapper { width: 100%; flex-grow: 1; min-height: 250px; position: relative; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;}
+        .chart-center-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
+        
+        .rules-container { background: #FFFFFF; border: 2px solid #E8EAF6; border-radius: 10px; padding: 15px; margin-top: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
+        .rules-title { font-size: 15px; font-weight: 900; color: var(--primary-navy); margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 6px;}
+        .rules-list { display: flex; flex-direction: column; gap: 8px; }
+        .rule-item { display: flex; align-items: center; font-size: 14px; font-weight: 800; padding: 6px 12px; border-radius: 6px; transition: 0.3s; background: #F4F5F7; color: var(--gray-text);}
+        .rule-item i { margin-right: 10px; font-size: 16px; }
+        .rule-item.fail { background: #FFEBEE; color: var(--danger); border: 1px solid rgba(211,47,47,0.3); } 
+        .rule-item.pass { background: #E8F5E9; color: var(--success); border: 1px solid rgba(46,125,50,0.2); }
+
+        /* 決策面板 */
+        .decision-panel { background: linear-gradient(135deg, var(--primary-navy) 0%, #11223A 100%); color: var(--white); border-left: 8px solid var(--primary-gold); }
+        .decision-card { background: rgba(255,255,255,0.08); padding: 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 12px;}
+        .decision-card:last-child { margin-bottom: 0; flex-grow: 1;}
+        .decision-card-title { font-size: 16px; font-weight: 900; margin-bottom: 8px; color: #80CBC4; border-bottom: 1px dashed rgba(255,255,255,0.3); padding-bottom: 6px; display: flex; align-items: center; gap: 8px;}
+        .decision-highlight { font-size: 20px; font-weight: 900; color: var(--primary-gold); margin: 0 4px; padding: 0 6px; background: rgba(0,0,0,0.3); border-radius: 4px;}
+        .proj-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-size: 15px; font-weight: bold; gap: 10px;}
+        .proj-row.total { background: rgba(197, 160, 89, 0.15); border: 1px solid rgba(197, 160, 89, 0.4); margin-top: 10px; padding: 10px 12px;}
+        .proj-after { font-size: 18px; font-weight: 900; color: var(--primary-gold); width: 40px; text-align: right; display: inline-block;}
+
+        .section-divider { border: 0; height: 3px; background: linear-gradient(to right, transparent, var(--primary-navy), transparent); margin: 30px 0; opacity: 0.3; }
+
+        /* 下半部：沙盤推演模擬區 */
+        .sim-layout { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(400px, 2.5fr); gap: 20px; align-items: stretch; }
+        
+        .sim-panel { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: var(--shadow); display: flex; flex-direction: column; border-top: 5px solid #5C6BC0; }
+        
+        /* 一鍵極大化按鈕樣式 */
+        .btn-maximize { background: var(--primary-gold); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 900; cursor: pointer; transition: 0.2s; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 6px;}
+        .btn-maximize:hover { background: #b08d4b; box-shadow: 0 4px 10px rgba(197, 160, 89, 0.4); transform: translateY(-1px);}
+        .btn-maximize:active { transform: translateY(1px); }
+
+        .sim-inputs-container { display: flex; flex-direction: column; gap: 12px; flex-grow: 1; justify-content: center;}
+        
+        .sim-input-row { display: flex; justify-content: space-between; align-items: center; background: #F8F9FA; padding: 12px 15px; border-radius: 8px; border: 1px solid #E8EAF6; flex-wrap: wrap; gap: 5px;}
+        .sim-input-row label { font-size: 15px; font-weight: 900; color: var(--primary-navy); }
+        .sim-input-row input { min-width: 80px; width: 30%; max-width: 100px; padding: 8px; border: 2px solid #9FA8DA; border-radius: 6px; text-align: center; font-weight: 900; font-size: 16px; color: #283593; transition: 0.3s;}
+        .sim-input-row input:focus { border-color: var(--primary-gold); box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.2); outline: none;}
+
+        .sim-right-wrapper { display: flex; flex-direction: column; height: 100%; gap: 20px;}
+        
+        .sim-charts-box { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border: 3px solid transparent; transition: 0.3s; display: grid; grid-template-columns: minmax(220px, 1fr) minmax(300px, 2fr); gap: 20px; align-items: center; flex-grow: 1; border-top: 5px solid var(--primary-teal); }
+        .sim-charts-box.warning-border { border-color: var(--danger); box-shadow: 0 0 15px rgba(211,47,47,0.3); }
+
+        .color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+        .bg-gold { background-color: var(--primary-gold); } .bg-teal-dark { background-color: var(--primary-teal); } .bg-teal-light { background-color: var(--teal-light); } .bg-navy-dark { background-color: var(--primary-navy); } .bg-navy-medium { background-color: var(--navy-medium); } .bg-navy-light { background-color: var(--navy-light); }
+        
+        .hud-alert-area { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 10; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .hud-alert-box { background: rgba(211, 47, 47, 0.95); color: white; padding: 10px 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(211,47,47,0.4); display: flex; align-items: center; font-weight: 900; font-size: 14px; transform: translateY(-10px); opacity: 0; transition: all 0.3s; }
+        .hud-alert-box.active { transform: translateY(0); opacity: 1; }
+        
+        .sim-rules-list { background: var(--white); padding: 15px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid #E0E0E0; margin: 0; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;}
+        .sim-rules-list .rule-item { margin-bottom: 0; font-size: 15px; font-weight: 900; padding: 6px 12px; border-radius: 6px; }
+
+        @media (max-width: 1200px) {
+            .top-layout { grid-template-columns: 1fr 1fr; }
+            .panel-box:last-child { grid-column: span 2; } 
+            .sim-layout { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .top-layout { grid-template-columns: 1fr; }
+            .panel-box:last-child { grid-column: span 1; }
+            .sim-charts-box { grid-template-columns: 1fr; }
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .kpi-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <div class="header">
+        <div>
+            <h1>法院書記官內升及提列考試人數動態估算系統</h1>
+            <div class="subtitle">v2.0</div>
+            
+            <div class="header-warning">
+                ⚠ <b>備註：</b>「法院書記官員額受列管」、「一等書記官人數少於設科數」以及「二等書記官未滿2人」等情形，不完全適用本試算系統，法院須自行檢視確認。
+            </div>
+
+        </div>
+        <div class="total-input-wrapper">
+            <label for="input-total">書記官預算員額總數 (T)</label>
+            <input type="number" id="input-total" value="300" class="number-input-large" min="1" onfocus="this.select()">
+        </div>
+    </div>
+
+    <div class="kpi-row">
+        <div class="kpi-card gold" id="kpi-box-n1">
+            <div class="kpi-label">一等書記官空間 (N1)</div>
+            <div class="kpi-value" id="kpi-n1">20</div>
+            <div class="kpi-subtext">現有人數</div>
+            <div class="kpi-limit-box">
+                <div>上限: <span class="limit-val" id="limit-n1">75</span></div>
+                <div>剩餘容納: <span class="remain-val" style="color:var(--primary-gold);" id="kpi-n1-remain">55</span></div>
+            </div>
+        </div>
+        <div class="kpi-card teal" id="kpi-box-n2">
+            <div class="kpi-label">一、二等書記官 (N1+N2)</div>
+            <div class="kpi-value" id="kpi-n1-n2-sum">68</div>
+            <div class="kpi-subtext">一等: <span id="kpi-card2-n1">20</span> / 二等: <span id="kpi-card2-n2">48</span></div>
+            <div class="kpi-limit-box">
+                <div>聯合上限: <span class="limit-val" id="limit-n1-n2">150</span></div>
+                <div>剩餘容納: <span class="remain-val" id="kpi-n2-remain">82</span></div>
+            </div>
+        </div>
+        <div class="kpi-card navy" id="kpi-box-n3">
+            <div class="kpi-label">二等書記官升薦訓練資格 (N2t)</div>
+            <div class="kpi-value" id="kpi-n2t-val">33</div>
+            <div class="kpi-subtext">現有人數</div>
+            <div class="kpi-limit-box">
+                <div>上限: <span class="limit-val" id="limit-n2t">50</span></div>
+                <div>剩餘容納: <span class="remain-val" style="color:var(--primary-navy);" id="kpi-n2t-remain">17</span></div>
+            </div>
+        </div>
+        <div class="kpi-card danger" id="kpi-box-total">
+            <div class="kpi-label">全院書記官人數</div>
+            <div class="kpi-value" id="kpi-sum">283</div>
+            <div class="kpi-subtext">現有總數</div>
+            <div class="kpi-limit-box">
+                <div>預算總數: <span class="limit-val" id="limit-total">300</span></div>
+                <div id="kpi-status-box">剩餘員額: <span class="remain-val" style="color:var(--success);" id="kpi-remain">17</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="top-layout">
+        <div class="panel-box">
+            <div class="section-title">現有人數與資格 (調整前現況)</div>
+            <div class="slider-group-box" id="group-n1">
+                <div class="slider-group-title gold"><span><span class="color-dot bg-gold"></span>一等書記官</span> </div>
+                <div class="slider-row">
+                    <div style="width:100%;"><input type="range" id="slider-n1" class="range-gold" min="0" value="20"></div>
+                    <input type="number" id="input-n1" class="number-input" value="20" onfocus="this.select()">
+                </div>
+            </div>
+            <div class="slider-group-box" id="group-n2">
+                <div class="slider-group-title teal"><span>二等書記官 (依資格)</span></div>
+                <div class="slider-row">
+                    <div><label class="slider-label" style="color:var(--primary-teal);"><span class="color-dot bg-teal-dark"></span>具考試資格</label>
+                    <input type="range" id="slider-n2e" class="range-teal-dark" min="0" value="15"></div>
+                    <input type="number" id="input-n2e" class="number-input" value="15" onfocus="this.select()">
+                </div>
+                <div class="slider-row">
+                    <div><label class="slider-label" style="color:var(--teal-light);"><span class="color-dot bg-teal-light"></span>具訓練資格</label>
+                    <input type="range" id="slider-n2t" class="range-teal-light" min="0" value="33"></div>
+                    <input type="number" id="input-n2t" class="number-input" value="33" onfocus="this.select()">
+                </div>
+            </div>
+            <div class="slider-group-box" id="group-n3" style="margin-bottom: 0;">
+                <div class="slider-group-title navy"><span>三等書記官 (依資格)</span></div>
+                <div class="slider-row">
+                    <div><label class="slider-label" style="color:var(--primary-navy);"><span class="color-dot bg-navy-dark"></span>具考試資格</label>
+                    <input type="range" id="slider-n3e" class="range-navy-dark" min="0" value="10"></div>
+                    <input type="number" id="input-n3e" class="number-input" value="10" onfocus="this.select()">
+                </div>
+                <div class="slider-row">
+                    <div><label class="slider-label" style="color:var(--navy-medium);"><span class="color-dot bg-navy-medium"></span>具訓練資格</label>
+                    <input type="range" id="slider-n3t" class="range-navy-medium" min="0" value="30"></div>
+                    <input type="number" id="input-n3t" class="number-input" value="30" onfocus="this.select()">
+                </div>
+                <div class="slider-row">
+                    <div><label class="slider-label" style="color:var(--navy-light);"><span class="color-dot bg-navy-light"></span>未具派二等書記官資格</label>
+                    <input type="range" id="slider-n3n" class="range-navy-light" min="0" value="175"></div>
+                    <input type="number" id="input-n3n" class="number-input" value="175" onfocus="this.select()">
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-box">
+            <div class="section-title text-center" style="border-bottom:none;">現況結構圖</div>
+            <div class="chart-wrapper">
+                <div class="hud-alert-area" id="hud-area"></div>
+                <canvas id="mainChart"></canvas>
+                <div class="chart-center-text">
+                    <div style="font-size: 15px; font-weight: 700; color: #777;">書記官總數</div>
+                    <div style="font-size: clamp(28px, 3vw, 42px); font-weight: 900; color: var(--primary-navy); line-height: 1;" id="center-sum">283</div>
+                </div>
+            </div>
+            <div class="rules-container">
+                <div class="rules-title">📊 法規與空間檢核</div>
+                <div class="rules-list">
+                    <div class="rule-item" id="rule-total"><i>✔</i> 總人數 ≤ 預算總額</div>
+                    <div class="rule-item" id="rule-law1"><i>✔</i> 一加二等總數 ≤ 總額 1/2</div>
+                    <div class="rule-item" id="rule-law2"><i>✔</i> 一等總數 ≤ 總額 1/4</div>
+                    <div class="rule-item" id="rule-n2q"><i>✔</i> 二等訓練資格 ≤ 總額 1/4 之 2/3</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-box decision-panel">
+            <div style="font-size: 20px; font-weight: 900; margin-bottom: 15px; color: var(--primary-gold);">💡 智能各等書記官資格人數極大化計算</div>
+            
+            <div class="decision-card">
+                <div class="decision-card-title">▶ 階段一：內升一等書記官</div>
+                <div style="font-size: 15px; color: #E0E0E0; line-height: 1.6;">
+                    最大可內升一等書記官人數為 <span class="decision-highlight" id="dec-auto-p1">0</span> 名。
+                </div>
+            </div>
+            
+            <div class="decision-card">
+                <div class="decision-card-title">▶ 階段二：遞補二等書記官</div>
+                <div style="font-size: 15px; color: #E0E0E0; line-height: 1.6;">
+                    預估二等最大可用職缺為 <strong style="color:#fff;">[<span id="dec-n2-vacancies">0</span>]</strong> 個。極大化計算配置如下：<br>
+                    1. 具委升薦訓練資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2t">0</span></strong> 名<br>
+                    2. 具考試資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2e">0</span></strong> 名<br>
+                    3. 剩餘最大得提報「三等考試」：<span class="decision-highlight" id="dec-auto-e3">0</span> 名。
+                </div>
+            </div>
+
+            <div class="decision-card" style="margin-bottom: 15px;">
+                <div class="decision-card-title">▶ 階段三：提報四等考試</div>
+                <div style="font-size: 15px; color: #E0E0E0; line-height: 1.6;">
+                    全院書記官員額尚餘 <strong style="color:#fff;"><span id="dec-remain-before-e4">0</span></strong> 名。<br>
+                    最大得提報「四等考試」 <span class="decision-highlight" id="dec-auto-e4">0</span> 名。
+                </div>
+            </div>
+
+            <div class="decision-card" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(197, 160, 89, 0.4);">
+                <div class="decision-card-title" style="color:var(--primary-gold);">▶ 階段四：極大化後人力結構預估</div>
+                <div>
+                    <div class="proj-row">🥇 一等總數 <div><span id="proj-n1-before">0</span> ➔ <span class="proj-after" id="proj-n1-after">0</span></div></div>
+                    <div class="proj-row">🥈 二等總數 <div><span id="proj-n2-before">0</span> ➔ <span class="proj-after" id="proj-n2-after">0</span></div></div>
+                    <div class="proj-row">🥉 三等總數 <div><span id="proj-n3-before">0</span> ➔ <span class="proj-after" style="color:#90CAF9;" id="proj-n3-after">0</span></div></div>
+                    <div class="proj-row total" style="color:var(--primary-gold);">🎯 全院總計 <div><span id="proj-tot-before">0</span> ➔ <span class="proj-after" id="proj-tot-after">0</span></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="sim-layout">
+        <div class="sim-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid #C5CAE9; padding-bottom: 10px; margin-bottom: 15px;">
+                <div style="font-size: 18px; font-weight: 900; color: #283593;">⚙️ 內升及考試人數試算區</div>
+                <button id="btn-maximize" class="btn-maximize" title="自動填入上方算出的最佳數字">💡 一鍵極大化</button>
+            </div>
+            <div style="font-size: 14px; color: #5C6BC0; margin-bottom: 15px; font-weight: bold;">
+                請輸入欲操作之「變動人數」。<br>系統已實施雙重防呆，內升與提報數無法超過現有資格者，亦不會超過法規與剩餘空間上限。
+            </div>
+            <div class="sim-inputs-container">
+                <div class="sim-input-row">
+                    <label>內升一等 (從二等)</label>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <input type="number" id="sim-p1" value="0" min="0" onfocus="this.select()">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p1">Max: 0</div>
+                    </div>
+                </div>
+                <div class="sim-input-row">
+                    <label>內升二等 (從三等訓練)</label>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <input type="number" id="sim-p2t" value="0" min="0" onfocus="this.select()">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p2t">Max: 0</div>
+                    </div>
+                </div>
+                <div class="sim-input-row">
+                    <label>內升二等 (從三等考試)</label>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <input type="number" id="sim-p2e" value="0" min="0" onfocus="this.select()">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p2e">Max: 0</div>
+                    </div>
+                </div>
+                <div class="sim-input-row">
+                    <label>提列三等考試</label>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <input type="number" id="sim-e3" value="0" min="0" onfocus="this.select()">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-e3">Max: 0</div>
+                    </div>
+                </div>
+                <div class="sim-input-row">
+                    <label>提列四等考試</label>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <input type="number" id="sim-e4" value="0" min="0" onfocus="this.select()">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-e4">Max: 0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sim-right-wrapper">
+            <div class="sim-charts-box" id="sim-charts-box">
+                <div style="position: relative; width:100%; min-height:250px; display:flex; align-items:center; justify-content:center;">
+                    <canvas id="simPieChart"></canvas>
+                    <div class="chart-center-text">
+                        <div style="font-size: 14px; font-weight: 700; color: #777;">試算總數</div>
+                        <div style="font-size: clamp(24px, 2.5vw, 36px); font-weight: 900; color: var(--primary-navy); line-height: 1;" id="sim-center-sum">0</div>
+                    </div>
+                </div>
+                <div style="width:100%; min-height: 280px; height: 100%;">
+                    <canvas id="simBarChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="sim-rules-list">
+                <div class="rule-item" id="sim-rule-total"><i>✔</i> 試算總人數 ≤ 預算總額</div>
+                <div class="rule-item" id="sim-rule-law1"><i>✔</i> 試算一加二等 ≤ 總額 1/2</div>
+                <div class="rule-item" id="sim-rule-law2"><i>✔</i> 試算一等總數 ≤ 總額 1/4</div>
+                <div class="rule-item" id="sim-rule-n2q"><i>✔</i> 試算訓練資格 ≤ 總額 1/4 之 2/3</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if (typeof ChartDataLabels !== 'undefined') { Chart.register(ChartDataLabels); }
+
+    // 專屬外掛：在堆疊長條圖的每一柱最頂端，畫上總數
+    const barTotalPlugin = {
+        id: 'barTotal',
+        afterDatasetsDraw(chart) {
+            const ctx = chart.ctx;
+            const yAxis = chart.scales.y;
+            
+            chart.data.labels.forEach((label, i) => {
+                if (i === 2 || i === 5) return; 
+                
+                let sum = 0;
+                let topY = yAxis.bottom; 
+                
+                chart.data.datasets.forEach((dataset, j) => {
+                    const meta = chart.getDatasetMeta(j);
+                    if (!meta.hidden && dataset.data[i] > 0) {
+                        sum += dataset.data[i];
+                        if (meta.data[i].y < topY) {
+                            topY = meta.data[i].y;
+                        }
+                    }
+                });
+                
+                if (sum >= 0) {
+                    let drawY = topY - 5;
+                    if (sum === 0) drawY = yAxis.bottom - 5; 
+
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.font = '900 18px "Noto Sans TC"';
+                    
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.strokeText(sum, chart.getDatasetMeta(0).data[i].x, drawY);
+                    
+                    ctx.fillStyle = '#D32F2F'; 
+                    ctx.fillText(sum, chart.getDatasetMeta(0).data[i].x, drawY);
+                    
+                    ctx.restore();
+                }
+            });
+        }
+    };
+
+    const getVal = (id) => Math.max(0, parseInt(document.getElementById(id).value) || 0);
+    const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+
+    function updateMaxText(elId, maxVal, currentVal) {
+        const el = document.getElementById(elId);
+        if (maxVal === 0) {
+            el.innerHTML = `Max: 0`;
+            el.style.color = '#9E9E9E'; 
+        } else if (currentVal >= maxVal) {
+            el.innerHTML = `✅ 已達上限 (${maxVal})`;
+            el.style.color = 'var(--success)';
+        } else {
+            el.innerHTML = `Max: ${maxVal}`;
+            el.style.color = '#7986CB';
+        }
+    }
+
+    let mainChart, simPieChart, simBarChart;
+    let isFirstLoad = true;
+
+    function init() {
+        const pieOptions = {
+            responsive: true, maintainAspectRatio: false, cutout: '65%',
+            animation: { duration: 400 },
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false },
+                datalabels: {
+                    color: '#fff', font: { weight: 'bold', size: 13 }, textAlign: 'center',
+                    formatter: (value, ctx) => {
+                        if (ctx.datasetIndex === 0 || value === 0 || ctx.dataIndex === 6) return ""; 
+                        const labels = ['一等', '二等\n(考試)', '二等\n(訓練)', '三等\n(考試)', '三等\n(訓練)', '三等\n(其他)'];
+                        return labels[ctx.dataIndex] + '\n' + value;
+                    }
+                }
+            }
+        };
+
+        const ctxMain = document.getElementById('mainChart').getContext('2d');
+        mainChart = new Chart(ctxMain, {
+            type: 'doughnut',
+            data: {
+                labels: ['一等', '二等(考試)', '二等(訓練)', '三等(考試)', '三等(訓練)', '三等(無資格)', '未分配'],
+                datasets: [
+                    { data: [0,0,0,0,0,0,0], backgroundColor: ['rgba(197, 160, 89, 0.2)', 'rgba(0, 137, 123, 0.2)', 'transparent', 'rgba(26, 47, 76, 0.05)', 'transparent', 'transparent', 'transparent'], borderWidth: 1, borderColor: '#fff', weight: 0.25 },
+                    { data: [0,0,0,0,0,0,0], backgroundColor: ['#C5A059', '#00897B', '#4DB6AC', '#1A2F4C', '#455A64', '#90A4AE', '#E0E0E0'], borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }
+                ]
+            }, options: pieOptions
+        });
+
+        const ctxSimPie = document.getElementById('simPieChart').getContext('2d');
+        simPieChart = new Chart(ctxSimPie, {
+            type: 'doughnut',
+            data: { 
+                labels: ['一等', '二等(考試)', '二等(訓練)', '三等(考試)', '三等(訓練)', '三等(無資格)', '未分配'],
+                datasets: [
+                    { data: [0,0,0,0,0,0,0], backgroundColor: ['rgba(197, 160, 89, 0.2)', 'rgba(0, 137, 123, 0.2)', 'transparent', 'rgba(26, 47, 76, 0.05)', 'transparent', 'transparent', 'transparent'], borderWidth: 1, borderColor: '#fff', weight: 0.25 },
+                    { data: [0,0,0,0,0,0,0], backgroundColor: ['#C5A059', '#00897B', '#4DB6AC', '#1A2F4C', '#455A64', '#90A4AE', '#E0E0E0'], borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }
+                ] 
+            }, options: pieOptions
+        });
+
+        const ctxSimBar = document.getElementById('simBarChart').getContext('2d');
+        simBarChart = new Chart(ctxSimBar, {
+            type: 'bar',
+            plugins: [barTotalPlugin], 
+            data: {
+                labels: [['一等', '現有'], ['一等', '試算'], '', ['二等', '現有'], ['二等', '試算'], '', ['三等', '現有'], ['三等', '試算']],
+                datasets: [
+                    { label: '一等', data: Array(8).fill(0), backgroundColor: '#C5A059' },
+                    { label: '二等(考試)', data: Array(8).fill(0), backgroundColor: '#00897B' },
+                    { label: '二等(訓練)', data: Array(8).fill(0), backgroundColor: '#4DB6AC' },
+                    { label: '三等(考試)', data: Array(8).fill(0), backgroundColor: '#1A2F4C' },
+                    { label: '三等(訓練)', data: Array(8).fill(0), backgroundColor: '#455A64' },
+                    { label: '三等(無資格)', data: Array(8).fill(0), backgroundColor: '#90A4AE' }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { 
+                    x: { stacked: true }, 
+                    y: { stacked: true, suggestedMax: 100 } 
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { font:{weight:'bold'} } },
+                    tooltip: { enabled: true },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 14 },
+                        formatter: (val) => val > 0 ? val : ""
+                    }
+                }
+            }
+        });
+
+        const bindSync = (sliderId, inputId) => {
+            const slider = document.getElementById(sliderId);
+            const input = document.getElementById(inputId);
+            
+            slider.addEventListener('input', () => { 
+                input.value = slider.value; 
+                safeCalculate(); 
+            });
+            
+            input.addEventListener('input', () => { 
+                slider.value = input.value; 
+                safeCalculate(); 
+            });
+
+            input.addEventListener('change', () => {
+                const T = getVal('input-total');
+                let v = parseInt(input.value);
+                if (isNaN(v) || v < 0) v = 0;
+                if (v > T) v = T;
+                input.value = v;
+                slider.value = v;
+                safeCalculate();
+            });
+        };
+        
+        bindSync('slider-n1', 'input-n1'); bindSync('slider-n2e', 'input-n2e'); bindSync('slider-n2t', 'input-n2t');
+        bindSync('slider-n3e', 'input-n3e'); bindSync('slider-n3t', 'input-n3t'); bindSync('slider-n3n', 'input-n3n');
+        
+        document.getElementById('input-total').addEventListener('input', safeCalculate);
+        
+        ['sim-p1', 'sim-p2t', 'sim-p2e', 'sim-e3', 'sim-e4'].forEach(id => {
+            const el = document.getElementById(id);
+            el.addEventListener('input', safeCalculate);
+            el.addEventListener('change', () => { 
+                let v = parseInt(el.value);
+                if(isNaN(v) || v < 0) el.value = 0;
+                safeCalculate(); 
+            });
+        });
+
+        document.getElementById('btn-maximize').addEventListener('click', applyMaximize);
+
+        applyMaximize();
+    }
+
+    function applyMaximize() {
+        const T = getVal('input-total');
+        const n1 = getVal('input-n1');
+        const n2e = getVal('input-n2e'); const n2t = getVal('input-n2t');
+        const n3e = getVal('input-n3e'); const n3t = getVal('input-n3t'); const n3n = getVal('input-n3n');
+
+        const n2Total = n2e + n2t;
+        const sum = n1 + n2Total + n3e + n3t + n3n;
+        const remain = Math.max(0, T - sum);
+
+        const max_N1_N2 = Math.floor(T / 2);
+        const max_C = Math.floor(T / 4);      
+        const max_D1 = Math.floor(max_C * (2/3)); 
+
+        const auto_p1 = Math.max(0, Math.min(n2e, max_C - n1));
+        document.getElementById('sim-p1').value = auto_p1;
+        
+        const auto_p2t = Math.max(0, Math.min(n3t, max_D1 - n2t, max_N1_N2 - n1 - n2Total));
+        document.getElementById('sim-p2t').value = auto_p2t;
+        
+        const auto_p2e = Math.max(0, Math.min(n3e, max_N1_N2 - n1 - n2Total - auto_p2t));
+        document.getElementById('sim-p2e').value = auto_p2e;
+        
+        const auto_e3_cap = Math.max(0, max_N1_N2 - n1 - n2Total - auto_p2t - auto_p2e); 
+        const auto_e3 = Math.max(0, Math.min(remain, auto_e3_cap)); 
+        document.getElementById('sim-e3').value = auto_e3;
+
+        const auto_e4 = Math.max(0, remain - auto_e3);
+        document.getElementById('sim-e4').value = auto_e4;
+
+        safeCalculate();
+    }
+
+    function safeCalculate() {
+        try { calculate(); } catch (e) { console.error("Calculation Error:", e); }
+    }
+
+    function showHudAlert(id, message) {
+        const hudArea = document.getElementById('hud-area');
+        if (!hudArea || document.getElementById(`hud-${id}`)) return;
+        const div = document.createElement('div');
+        div.id = `hud-${id}`; div.className = 'hud-alert-box';
+        div.innerHTML = `<span style="margin-right:8px; font-size:18px;">⚠</span> ${message}`;
+        hudArea.appendChild(div);
+        setTimeout(() => div.classList.add('active'), 10);
+    }
+    function clearHudAlert(id) {
+        const div = document.getElementById(`hud-${id}`);
+        if (div) { div.classList.remove('active'); setTimeout(() => div.remove(), 300); }
+    }
+
+    function setRule(id, isFail, groupBoxId) {
+        const el = document.getElementById(id);
+        const group = groupBoxId ? document.getElementById(groupBoxId) : null;
+        if (isFail) {
+            if(el) { el.className = 'rule-item fail'; el.querySelector('i').innerText = '✖'; }
+            if(group) group.classList.add('warning-border');
+        } else {
+            if(el) { el.className = 'rule-item pass'; el.querySelector('i').innerText = '✔'; }
+            if(group) group.classList.remove('warning-border');
+        }
+    }
+
+    function setSimRule(id, isFail) {
+        const el = document.getElementById(id);
+        if(isFail) { el.className = 'rule-item fail'; el.querySelector('i').innerText = '✖'; }
+        else { el.className = 'rule-item pass'; el.querySelector('i').innerText = '✔'; }
+    }
+
+    function calculate() {
+        const T = getVal('input-total');
+        const n1 = getVal('input-n1');
+        const n2e = getVal('input-n2e'); const n2t = getVal('input-n2t');
+        const n3e = getVal('input-n3e'); const n3t = getVal('input-n3t'); const n3n = getVal('input-n3n');
+
+        const n2Total = n2e + n2t;
+        const n3Total = n3e + n3t + n3n;
+        const sum = n1 + n2Total + n3Total;
+
+        ['slider-n1', 'slider-n2e', 'slider-n2t', 'slider-n3e', 'slider-n3t', 'slider-n3n'].forEach(id => {
+            document.getElementById(id).max = T;
+        });
+
+        const max_N1_N2 = Math.floor(T / 2);
+        const max_C = Math.floor(T / 4);      
+        const max_D1 = Math.floor(max_C * (2/3)); 
+
+        setTxt('kpi-n1', n1); setTxt('limit-n1', max_C); setTxt('kpi-n1-remain', Math.max(0, max_C - n1));
+        
+        setTxt('kpi-n1-n2-sum', n1 + n2Total);
+        setTxt('kpi-card2-n1', n1); setTxt('kpi-card2-n2', n2Total);
+        setTxt('limit-n1-n2', max_N1_N2);
+        setTxt('kpi-n2-remain', Math.max(0, max_N1_N2 - n1 - n2Total)); 
+        
+        setTxt('kpi-n2t-val', n2t); setTxt('limit-n2t', max_D1); setTxt('kpi-n2t-remain', Math.max(0, max_D1 - n2t));
+
+        setTxt('kpi-sum', sum); setTxt('limit-total', T);
+        
+        // 【本次修復：將 sum 同步寫入中央圓餅圖中心數字】
+        setTxt('center-sum', sum);
+
+        let remain = Math.max(0, T - sum);
+        const isOverflow = sum > T;
+        setTxt('kpi-remain', isOverflow ? Math.abs(T-sum) : remain);
+        
+        const statusBox = document.getElementById('kpi-status-box');
+        const kpiBoxTotal = document.getElementById('kpi-box-total');
+        
+        if (isOverflow) {
+            statusBox.innerHTML = `超額溢出: <span class="limit-val">${Math.abs(T-sum)}</span>`;
+            kpiBoxTotal.style.borderColor = "var(--danger)";
+        } else {
+            statusBox.innerHTML = `剩餘員額: <span class="remain-val" style="color:var(--success);">${remain}</span>`;
+            kpiBoxTotal.style.borderColor = "#eee";
+        }
+
+        const finalEmpty = remain; 
+        const autoP1 = Math.max(0, Math.min(n2e, max_C - n1));
+        
+        const n2_available_vacancies = Math.max(0, max_N1_N2 - n1 - n2Total);
+        
+        const available_P2t_space = Math.max(0, max_D1 - n2t);
+        const autoP2t = Math.max(0, Math.min(n3t, available_P2t_space, n2_available_vacancies));
+        
+        const n2_space_after_t = n2_available_vacancies - autoP2t;
+        const autoP2e = Math.max(0, Math.min(n3e, n2_space_after_t));
+        
+        const n2_shortfall = n2_space_after_t - autoP2e;
+        const autoE3 = Math.min(remain, n2_shortfall); 
+        
+        const autoE4 = Math.max(0, remain - autoE3);
+
+        setTxt('dec-auto-p1', autoP1);
+        setTxt('dec-n2-vacancies', n2_available_vacancies);
+        setTxt('dec-auto-p2t', autoP2t);
+        setTxt('dec-auto-p2e', autoP2e);
+        setTxt('dec-auto-e3', autoE3);
+        setTxt('dec-remain-before-e4', Math.max(0, remain - autoE3));
+        setTxt('dec-auto-e4', autoE4);
+
+        setTxt('proj-n1-before', n1); setTxt('proj-n1-after', n1 + autoP1);
+        setTxt('proj-n2-before', n2Total); setTxt('proj-n2-after', n2Total - autoP1 + autoP2t + autoP2e + autoE3);
+        setTxt('proj-n3-before', n3Total); setTxt('proj-n3-after', n3Total - autoP2t - autoP2e + autoE4);
+        setTxt('proj-tot-before', sum); setTxt('proj-tot-after', n1 + n2Total + n3Total + autoE3 + autoE4);
+
+        setRule('rule-total', sum > T, null);
+        setRule('rule-law1', n1+n2Total > max_N1_N2, null);
+        setRule('rule-law2', n1 > max_C, 'group-n1');
+        setRule('rule-n2q', n2t > max_D1, null);
+
+        if(sum > T) showHudAlert('total', `總人數超出員額限制`); else clearHudAlert('total');
+        if(n1+n2Total > max_N1_N2) showHudAlert('law1', `一二等總和超過聯合上限`); else clearHudAlert('law1');
+
+        mainChart.data.datasets[0].data = [max_C, max_N1_N2 - max_C, Math.max(0, T - max_N1_N2), 0,0,0,0];
+        mainChart.data.datasets[1].data = [n1, n2e, n2t, n3e, n3t, n3n, isOverflow ? Math.abs(T-sum) : remain];
+        mainChart.data.datasets[1].backgroundColor[6] = isOverflow ? '#D32F2F' : '#E0E0E0';
+        mainChart.update();
+
+        // ============================================
+        // 模擬區防呆與圖表更新
+        // ============================================
+        const simP1El = document.getElementById('sim-p1');
+        const simP2tEl = document.getElementById('sim-p2t');
+        const simP2eEl = document.getElementById('sim-p2e');
+        const simE3El = document.getElementById('sim-e3');
+        const simE4El = document.getElementById('sim-e4');
+
+        let sP1 = getVal('sim-p1');
+        const max_sim_p1 = Math.max(0, Math.min(n2e, max_C - n1));
+        if(sP1 > max_sim_p1) { sP1 = max_sim_p1; simP1El.value = sP1; }
+        updateMaxText('sim-max-p1', max_sim_p1, sP1);
+
+        let sP2t = getVal('sim-p2t');
+        const max_sim_p2t = Math.max(0, Math.min(n3t, max_D1 - n2t, max_N1_N2 - n1 - n2Total));
+        if(sP2t > max_sim_p2t) { sP2t = max_sim_p2t; simP2tEl.value = sP2t; }
+        updateMaxText('sim-max-p2t', max_sim_p2t, sP2t);
+
+        let sP2e = getVal('sim-p2e');
+        const max_sim_p2e = Math.max(0, Math.min(n3e, max_N1_N2 - n1 - n2Total - sP2t));
+        if(sP2e > max_sim_p2e) { sP2e = max_sim_p2e; simP2eEl.value = sP2e; }
+        updateMaxText('sim-max-p2e', max_sim_p2e, sP2e);
+
+        let sE4 = getVal('sim-e4');
+        let sE3 = getVal('sim-e3');
+
+        const max_sim_e3_capacity = Math.max(0, max_N1_N2 - n1 - n2Total - sP2t - sP2e); 
+        let max_sim_e3 = Math.max(0, Math.min(remain - sE4, max_sim_e3_capacity));
+        if (sE3 > max_sim_e3) { sE3 = max_sim_e3; simE3El.value = sE3; }
+        
+        let max_sim_e4 = Math.max(0, remain - sE3);
+        if (sE4 > max_sim_e4) { sE4 = max_sim_e4; simE4El.value = sE4; }
+        
+        max_sim_e3 = Math.max(0, Math.min(remain - sE4, max_sim_e3_capacity));
+        updateMaxText('sim-max-e3', max_sim_e3, sE3);
+        updateMaxText('sim-max-e4', max_sim_e4, sE4);
+
+        const sim_n1 = n1 + sP1;
+        const sim_n2e = n2e - sP1 + sP2e + sE3;
+        const sim_n2t = n2t + sP2t;
+        const sim_n2Total = sim_n2e + sim_n2t;
+        const sim_n3e = Math.max(0, n3e - sP2e);
+        const sim_n3t = Math.max(0, n3t - sP2t);
+        const sim_n3n = n3n + sE4;
+        const sim_n3Total = sim_n3e + sim_n3t + sim_n3n;
+        const sim_sum = sim_n1 + sim_n2Total + sim_n3Total;
+
+        setTxt('sim-center-sum', sim_sum);
+
+        simPieChart.data.datasets[0].data = [max_C, max_N1_N2 - max_C, Math.max(0, T - max_N1_N2), 0,0,0,0];
+        simPieChart.data.datasets[1].data = [sim_n1, sim_n2e, sim_n2t, sim_n3e, sim_n3t, sim_n3n, Math.max(0, T - sim_sum)];
+        simPieChart.data.datasets[1].backgroundColor[6] = sim_sum > T ? '#D32F2F' : '#E0E0E0';
+        simPieChart.update();
+
+        simBarChart.options.scales.y.suggestedMax = Math.max(n3Total, sim_n3Total) + 20; 
+        simBarChart.data.datasets[0].data = [n1, sim_n1, 0, 0, 0, 0, 0, 0]; 
+        simBarChart.data.datasets[1].data = [0, 0, 0, n2e, sim_n2e, 0, 0, 0]; 
+        simBarChart.data.datasets[2].data = [0, 0, 0, n2t, sim_n2t, 0, 0, 0]; 
+        simBarChart.data.datasets[3].data = [0, 0, 0, 0, 0, 0, n3e, sim_n3e]; 
+        simBarChart.data.datasets[4].data = [0, 0, 0, 0, 0, 0, n3t, sim_n3t]; 
+        simBarChart.data.datasets[5].data = [0, 0, 0, 0, 0, 0, n3n, sim_n3n]; 
+        simBarChart.update();
+
+        const simTotalFail = sim_sum > T;
+        const simLaw1Fail = sim_n1 + sim_n2Total > max_N1_N2;
+        const simLaw2Fail = sim_n1 > max_C;
+        const simN2qFail = sim_n2t > max_D1;
+        
+        setSimRule('sim-rule-total', simTotalFail);
+        setSimRule('sim-rule-law1', simLaw1Fail);
+        setSimRule('sim-rule-law2', simLaw2Fail);
+        setSimRule('sim-rule-n2q', simN2qFail);
+
+        const simChartsBox = document.getElementById('sim-charts-box');
+        if(simTotalFail || simLaw1Fail || simLaw2Fail || simN2qFail) {
+            simChartsBox.classList.add('warning-border');
+        } else {
+            simChartsBox.classList.remove('warning-border');
+        }
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
