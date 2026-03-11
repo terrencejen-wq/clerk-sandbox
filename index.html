@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>法院書記官內升及提列考試人數動態估算系統 (v3.3)</title>
+    <title>法院書記官內升及提列考試人數動態估算系統 (v3.4)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -32,6 +32,22 @@
         .header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background: var(--primary-navy); padding: 20px 30px; border-radius: 12px; box-shadow: var(--shadow); border-bottom: 5px solid var(--primary-gold); color: var(--white); gap: 15px;}
         .header h1 { margin: 0; font-size: clamp(20px, 2vw, 26px); font-weight: 900; letter-spacing: 1px;}
         .header .subtitle { font-size: 15px; color: #CFD8DC; margin-top: 5px; font-weight: 500;}
+        
+        /* 頂部備註框樣式 */
+        .header-warning {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #FFCDD2;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 4px solid #E53935;
+            display: inline-block;
+            line-height: 1.4;
+            font-weight: 500;
+            max-width: 100%;
+        }
+
         .total-input-wrapper { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 8px; flex-wrap: wrap;}
         .total-input-wrapper label { font-size: 18px; font-weight: 700; }
         .number-input-large { width: 120px; padding: 8px; border: 2px solid var(--primary-gold); border-radius: 6px; text-align: center; font-weight: 900; font-size: 22px; color: var(--primary-navy); }
@@ -152,7 +168,12 @@
     <div class="header">
         <div>
             <h1>法院書記官內升及提列考試人數動態估算系統</h1>
-            <div class="subtitle">v3.3 (一鍵極大化 ✕ 動態連動修復版)</div>
+            <div class="subtitle">v2.0</div>
+            
+            <div class="header-warning">
+                ⚠ <b>備註：</b>「法院書記官員額受列管」、「一等書記官人數少於設科數」以及「二等書記官未滿2人」等情形，不完全適用本試算系統，法院須自行檢視確認。
+            </div>
+
         </div>
         <div class="total-input-wrapper">
             <label for="input-total">書記官預算員額總數 (T)</label>
@@ -201,7 +222,7 @@
 
     <div class="top-layout">
         <div class="panel-box">
-            <div class="section-title">現有人數與資格 (調配前現況)</div>
+            <div class="section-title">現有人數與資格 (調整前現況)</div>
             <div class="slider-group-box" id="group-n1">
                 <div class="slider-group-title gold"><span><span class="color-dot bg-gold"></span>一等書記官</span> </div>
                 <div class="slider-row">
@@ -235,7 +256,7 @@
                     <input type="number" id="input-n3t" class="number-input" value="30" onfocus="this.select()">
                 </div>
                 <div class="slider-row">
-                    <div><label class="slider-label" style="color:var(--navy-light);"><span class="color-dot bg-navy-light"></span>未具資格</label>
+                    <div><label class="slider-label" style="color:var(--navy-light);"><span class="color-dot bg-navy-light"></span>未具派二等書記官資格</label>
                     <input type="range" id="slider-n3n" class="range-navy-light" min="0" value="175"></div>
                     <input type="number" id="input-n3n" class="number-input" value="175" onfocus="this.select()">
                 </div>
@@ -267,14 +288,14 @@
             <div style="font-size: 20px; font-weight: 900; margin-bottom: 15px; color: var(--primary-gold);">💡 智能各等書記官資格人數極大化計算</div>
             
             <div class="decision-card">
-                <div class="decision-card-title">▶ 階段一：一等書記官內升</div>
+                <div class="decision-card-title">▶ 階段一：內升一等書記官</div>
                 <div style="font-size: 15px; color: #E0E0E0; line-height: 1.6;">
                     最大可內升一等書記官人數為 <span class="decision-highlight" id="dec-auto-p1">0</span> 名。
                 </div>
             </div>
             
             <div class="decision-card">
-                <div class="decision-card-title">▶ 階段二：二等書記官遞補</div>
+                <div class="decision-card-title">▶ 階段二：遞補二等書記官</div>
                 <div style="font-size: 15px; color: #E0E0E0; line-height: 1.6;">
                     預估二等最大可用職缺為 <strong style="color:#fff;">[<span id="dec-n2-vacancies">0</span>]</strong> 個。極大化計算配置如下：<br>
                     1. 具委升薦訓練資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2t">0</span></strong> 名<br>
@@ -284,7 +305,7 @@
             </div>
 
             <div class="decision-card" style="margin-bottom: 15px;">
-                <div class="decision-card-title">▶ 階段三：四等考試提報</div>
+                <div class="decision-card-title">▶ 階段三：提報四等考試</div>
                 <div style="font-size: 15px; color: #E0E0E0; line-height: 1.6;">
                     全院書記官員額尚餘 <strong style="color:#fff;"><span id="dec-remain-before-e4">0</span></strong> 名。<br>
                     最大得提報「四等考試」 <span class="decision-highlight" id="dec-auto-e4">0</span> 名。
@@ -456,7 +477,7 @@
                     color: '#fff', font: { weight: 'bold', size: 13 }, textAlign: 'center',
                     formatter: (value, ctx) => {
                         if (ctx.datasetIndex === 0 || value === 0 || ctx.dataIndex === 6) return ""; 
-                        const labels = ['一等', '二等\n(考試)', '二等\n(訓練)', '三等\n(考試)', '三等\n(訓練)', '三等\n(無)'];
+                        const labels = ['一等', '二等\n(考試)', '二等\n(訓練)', '三等\n(考試)', '三等\n(訓練)', '三等\n(其他)'];
                         return labels[ctx.dataIndex] + '\n' + value;
                     }
                 }
