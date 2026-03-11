@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>法院書記官內升及提列考試人數動態估算系統 (v3.0)</title>
+    <title>法院書記官內升及提列考試人數動態估算系統 (v3.2)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -98,18 +98,23 @@
 
         .section-divider { border: 0; height: 3px; background: linear-gradient(to right, transparent, var(--primary-navy), transparent); margin: 30px 0; opacity: 0.3; }
 
-        /* =========================================
-           下半部：沙盤推演模擬區 
-           ========================================= */
+        /* 下半部：沙盤推演模擬區 */
         .sim-layout { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(400px, 2.5fr); gap: 20px; align-items: stretch; }
         
         .sim-panel { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: var(--shadow); display: flex; flex-direction: column; border-top: 5px solid #5C6BC0; }
+        
+        /* 一鍵極大化按鈕樣式 */
+        .btn-maximize { background: var(--primary-gold); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 900; cursor: pointer; transition: 0.2s; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 6px;}
+        .btn-maximize:hover { background: #b08d4b; box-shadow: 0 4px 10px rgba(197, 160, 89, 0.4); transform: translateY(-1px);}
+        .btn-maximize:active { transform: translateY(1px); }
+
         .sim-inputs-container { display: flex; flex-direction: column; gap: 12px; flex-grow: 1; justify-content: center;}
         
         .sim-input-row { display: flex; justify-content: space-between; align-items: center; background: #F8F9FA; padding: 12px 15px; border-radius: 8px; border: 1px solid #E8EAF6; flex-wrap: wrap; gap: 5px;}
         .sim-input-row label { font-size: 15px; font-weight: 900; color: var(--primary-navy); }
-        .sim-input-row input { min-width: 80px; width: 30%; max-width: 100px; padding: 8px; border: 2px solid #9FA8DA; border-radius: 6px; text-align: center; font-weight: 900; font-size: 16px; color: #283593; }
-        
+        .sim-input-row input { min-width: 80px; width: 30%; max-width: 100px; padding: 8px; border: 2px solid #9FA8DA; border-radius: 6px; text-align: center; font-weight: 900; font-size: 16px; color: #283593; transition: 0.3s;}
+        .sim-input-row input:focus { border-color: var(--primary-gold); box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.2); outline: none;}
+
         .sim-right-wrapper { display: flex; flex-direction: column; height: 100%; gap: 20px;}
         
         .sim-charts-box { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border: 3px solid transparent; transition: 0.3s; display: grid; grid-template-columns: minmax(220px, 1fr) minmax(300px, 2fr); gap: 20px; align-items: center; flex-grow: 1; border-top: 5px solid var(--primary-teal); }
@@ -147,17 +152,17 @@
     <div class="header">
         <div>
             <h1>法院書記官內升及提列考試人數動態估算系統</h1>
-            <div class="subtitle">v3.0 </div>
+            <div class="subtitle">v2.0</div>
         </div>
         <div class="total-input-wrapper">
             <label for="input-total">書記官預算員額總數 (T)</label>
-            <input type="number" id="input-total" value="300" class="number-input-large" min="1">
+            <input type="number" id="input-total" value="300" class="number-input-large" min="1" onfocus="this.select()">
         </div>
     </div>
 
     <div class="kpi-row">
         <div class="kpi-card gold" id="kpi-box-n1">
-            <div class="kpi-label">一等書記官 (N1)</div>
+            <div class="kpi-label">一等書記官空間 (N1)</div>
             <div class="kpi-value" id="kpi-n1">20</div>
             <div class="kpi-subtext">現有人數</div>
             <div class="kpi-limit-box">
@@ -201,7 +206,7 @@
                 <div class="slider-group-title gold"><span><span class="color-dot bg-gold"></span>一等書記官</span> </div>
                 <div class="slider-row">
                     <div style="width:100%;"><input type="range" id="slider-n1" class="range-gold" min="0" value="20"></div>
-                    <input type="number" id="input-n1" class="number-input" value="20">
+                    <input type="number" id="input-n1" class="number-input" value="20" onfocus="this.select()">
                 </div>
             </div>
             <div class="slider-group-box" id="group-n2">
@@ -209,12 +214,12 @@
                 <div class="slider-row">
                     <div><label class="slider-label" style="color:var(--primary-teal);"><span class="color-dot bg-teal-dark"></span>具考試資格</label>
                     <input type="range" id="slider-n2e" class="range-teal-dark" min="0" value="15"></div>
-                    <input type="number" id="input-n2e" class="number-input" value="15">
+                    <input type="number" id="input-n2e" class="number-input" value="15" onfocus="this.select()">
                 </div>
                 <div class="slider-row">
                     <div><label class="slider-label" style="color:var(--teal-light);"><span class="color-dot bg-teal-light"></span>具訓練資格</label>
                     <input type="range" id="slider-n2t" class="range-teal-light" min="0" value="33"></div>
-                    <input type="number" id="input-n2t" class="number-input" value="33">
+                    <input type="number" id="input-n2t" class="number-input" value="33" onfocus="this.select()">
                 </div>
             </div>
             <div class="slider-group-box" id="group-n3" style="margin-bottom: 0;">
@@ -222,17 +227,17 @@
                 <div class="slider-row">
                     <div><label class="slider-label" style="color:var(--primary-navy);"><span class="color-dot bg-navy-dark"></span>具考試資格</label>
                     <input type="range" id="slider-n3e" class="range-navy-dark" min="0" value="10"></div>
-                    <input type="number" id="input-n3e" class="number-input" value="10">
+                    <input type="number" id="input-n3e" class="number-input" value="10" onfocus="this.select()">
                 </div>
                 <div class="slider-row">
                     <div><label class="slider-label" style="color:var(--navy-medium);"><span class="color-dot bg-navy-medium"></span>具訓練資格</label>
                     <input type="range" id="slider-n3t" class="range-navy-medium" min="0" value="30"></div>
-                    <input type="number" id="input-n3t" class="number-input" value="30">
+                    <input type="number" id="input-n3t" class="number-input" value="30" onfocus="this.select()">
                 </div>
                 <div class="slider-row">
                     <div><label class="slider-label" style="color:var(--navy-light);"><span class="color-dot bg-navy-light"></span>未具資格</label>
                     <input type="range" id="slider-n3n" class="range-navy-light" min="0" value="175"></div>
-                    <input type="number" id="input-n3n" class="number-input" value="175">
+                    <input type="number" id="input-n3n" class="number-input" value="175" onfocus="this.select()">
                 </div>
             </div>
         </div>
@@ -302,7 +307,10 @@
 
     <div class="sim-layout">
         <div class="sim-panel">
-            <div class="section-title" style="border-bottom-color:#C5CAE9; color:#283593;">⚙️ 內升及考試人數試算區</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid #C5CAE9; padding-bottom: 10px; margin-bottom: 15px;">
+                <div style="font-size: 18px; font-weight: 900; color: #283593;">⚙️ 內升及考試人數試算區</div>
+                <button id="btn-maximize" class="btn-maximize" title="自動填入上方算出的最佳數字">💡 一鍵極大化</button>
+            </div>
             <div style="font-size: 14px; color: #5C6BC0; margin-bottom: 15px; font-weight: bold;">
                 請輸入欲操作之「變動人數」。<br>系統已實施雙重防呆，內升與提報數無法超過現有資格者，亦不會超過法規與剩餘空間上限。
             </div>
@@ -310,36 +318,36 @@
                 <div class="sim-input-row">
                     <label>內升一等 (從二等)</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
-                        <input type="number" id="sim-p1" value="0" min="0">
-                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px;" id="sim-max-p1">Max: 0</div>
+                        <input type="number" id="sim-p1" value="0" min="0" onfocus="this.select()">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p1">Max: 0</div>
                     </div>
                 </div>
                 <div class="sim-input-row">
                     <label>內升二等 (從三等訓練)</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
-                        <input type="number" id="sim-p2t" value="0" min="0">
-                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px;" id="sim-max-p2t">Max: 0</div>
+                        <input type="number" id="sim-p2t" value="0" min="0" onfocus="this.select()">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p2t">Max: 0</div>
                     </div>
                 </div>
                 <div class="sim-input-row">
                     <label>內升二等 (從三等考試)</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
-                        <input type="number" id="sim-p2e" value="0" min="0">
-                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px;" id="sim-max-p2e">Max: 0</div>
+                        <input type="number" id="sim-p2e" value="0" min="0" onfocus="this.select()">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p2e">Max: 0</div>
                     </div>
                 </div>
                 <div class="sim-input-row">
                     <label>提列三等考試</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
-                        <input type="number" id="sim-e3" value="0" min="0">
-                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px;" id="sim-max-e3">Max: 0</div>
+                        <input type="number" id="sim-e3" value="0" min="0" onfocus="this.select()">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-e3">Max: 0</div>
                     </div>
                 </div>
                 <div class="sim-input-row">
                     <label>提列四等考試</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
-                        <input type="number" id="sim-e4" value="0" min="0">
-                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px;" id="sim-max-e4">Max: 0</div>
+                        <input type="number" id="sim-e4" value="0" min="0" onfocus="this.select()">
+                        <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-e4">Max: 0</div>
                     </div>
                 </div>
             </div>
@@ -380,7 +388,7 @@
             const yAxis = chart.scales.y;
             
             chart.data.labels.forEach((label, i) => {
-                if (i === 2 || i === 5) return; // 略過空白間距
+                if (i === 2 || i === 5) return; 
                 
                 let sum = 0;
                 let topY = yAxis.bottom; 
@@ -395,20 +403,22 @@
                     }
                 });
                 
-                if (sum > 0) {
+                // 修復：即使是 0 人，也會霸氣顯示 0
+                if (sum >= 0) {
+                    let drawY = topY - 5;
+                    if (sum === 0) drawY = yAxis.bottom - 5; // 若無資料，對齊 X 軸上方
+
                     ctx.save();
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'bottom';
                     ctx.font = '900 18px "Noto Sans TC"';
                     
-                    // 白色描邊增加對比度
                     ctx.lineWidth = 3;
                     ctx.strokeStyle = '#FFFFFF';
-                    ctx.strokeText(sum, chart.getDatasetMeta(0).data[i].x, topY - 5);
+                    ctx.strokeText(sum, chart.getDatasetMeta(0).data[i].x, drawY);
                     
-                    // 紅色總數文字
                     ctx.fillStyle = '#D32F2F'; 
-                    ctx.fillText(sum, chart.getDatasetMeta(0).data[i].x, topY - 5);
+                    ctx.fillText(sum, chart.getDatasetMeta(0).data[i].x, drawY);
                     
                     ctx.restore();
                 }
@@ -416,11 +426,26 @@
         }
     };
 
+    // 強制防護：阻絕負數
+    const getVal = (id) => Math.max(0, parseInt(document.getElementById(id).value) || 0);
     const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
-    const getVal = (id) => parseInt(document.getElementById(id).value) || 0;
+
+    // 視覺回饋防呆函數
+    function updateMaxText(elId, maxVal, currentVal) {
+        const el = document.getElementById(elId);
+        if (maxVal === 0) {
+            el.innerHTML = `Max: 0`;
+            el.style.color = '#9E9E9E'; // 沒有空間時顯示灰色
+        } else if (currentVal >= maxVal) {
+            el.innerHTML = `✅ 已達上限 (${maxVal})`;
+            el.style.color = 'var(--success)';
+        } else {
+            el.innerHTML = `Max: ${maxVal}`;
+            el.style.color = '#7986CB';
+        }
+    }
 
     let mainChart, simPieChart, simBarChart;
-    let isFirstLoad = true; // 網頁初次載入旗標
 
     function init() {
         const pieOptions = {
@@ -464,7 +489,6 @@
             }, options: pieOptions
         });
 
-        // 升級版：分組堆疊長條圖 (註冊我們寫好的 barTotalPlugin)
         const ctxSimBar = document.getElementById('simBarChart').getContext('2d');
         simBarChart = new Chart(ctxSimBar, {
             type: 'bar',
@@ -498,18 +522,87 @@
             }
         });
 
+        // 綁定輸入框與拉桿
         const bindSync = (sliderId, inputId) => {
             const slider = document.getElementById(sliderId);
             const input = document.getElementById(inputId);
-            slider.addEventListener('input', () => { input.value = slider.value; safeCalculate(); });
-            input.addEventListener('input', () => { slider.value = input.value; safeCalculate(); });
+            
+            slider.addEventListener('input', () => { 
+                input.value = slider.value; 
+                safeCalculate(); 
+            });
+            
+            input.addEventListener('input', () => { 
+                slider.value = input.value; 
+                safeCalculate(); 
+            });
+
+            // 負數與溢出防呆
+            input.addEventListener('change', () => {
+                const T = getVal('input-total');
+                let v = parseInt(input.value);
+                if (isNaN(v) || v < 0) v = 0;
+                if (v > T) v = T;
+                input.value = v;
+                slider.value = v;
+                safeCalculate();
+            });
         };
         
         bindSync('slider-n1', 'input-n1'); bindSync('slider-n2e', 'input-n2e'); bindSync('slider-n2t', 'input-n2t');
         bindSync('slider-n3e', 'input-n3e'); bindSync('slider-n3t', 'input-n3t'); bindSync('slider-n3n', 'input-n3n');
         
         document.getElementById('input-total').addEventListener('input', safeCalculate);
-        ['sim-p1', 'sim-p2t', 'sim-p2e', 'sim-e3', 'sim-e4'].forEach(id => document.getElementById(id).addEventListener('input', safeCalculate));
+        
+        // 模擬區數字框防呆綁定
+        ['sim-p1', 'sim-p2t', 'sim-p2e', 'sim-e3', 'sim-e4'].forEach(id => {
+            const el = document.getElementById(id);
+            el.addEventListener('input', safeCalculate);
+            el.addEventListener('change', () => { 
+                let v = parseInt(el.value);
+                if(isNaN(v) || v < 0) el.value = 0;
+                safeCalculate(); 
+            });
+        });
+
+        // 綁定一鍵極大化按鈕
+        document.getElementById('btn-maximize').addEventListener('click', applyMaximize);
+
+        // 網頁開啟自動填滿
+        applyMaximize();
+    }
+
+    // 獨立出來的「一鍵極大化」智能演算函數
+    function applyMaximize() {
+        const T = getVal('input-total');
+        const n1 = getVal('input-n1');
+        const n2e = getVal('input-n2e'); const n2t = getVal('input-n2t');
+        const n3e = getVal('input-n3e'); const n3t = getVal('input-n3t'); const n3n = getVal('input-n3n');
+
+        const n2Total = n2e + n2t;
+        const sum = n1 + n2Total + n3e + n3t + n3n;
+        const remain = Math.max(0, T - sum);
+
+        const max_N1_N2 = Math.floor(T / 2);
+        const max_C = Math.floor(T / 4);      
+        const max_D1 = Math.floor(max_C * (2/3)); 
+
+        const auto_p1 = Math.max(0, Math.min(n2e, max_C - n1));
+        document.getElementById('sim-p1').value = auto_p1;
+        
+        const auto_p2t = Math.max(0, Math.min(n3t, max_D1 - n2t, max_N1_N2 - n1 - n2Total));
+        document.getElementById('sim-p2t').value = auto_p2t;
+        
+        const auto_p2e = Math.max(0, Math.min(n3e, max_N1_N2 - n1 - n2Total - auto_p2t));
+        document.getElementById('sim-p2e').value = auto_p2e;
+        
+        const auto_e3_cap = Math.max(0, max_N1_N2 - n1 - n2Total - auto_p2t - auto_p2e); 
+        const auto_e3 = Math.max(0, Math.min(remain, auto_e3_cap)); 
+        document.getElementById('sim-e3').value = auto_e3;
+
+        // 修復：完美補齊四等考試
+        const auto_e4 = Math.max(0, remain - auto_e3);
+        document.getElementById('sim-e4').value = auto_e4;
 
         safeCalculate();
     }
@@ -589,13 +682,15 @@
             statusBox.innerHTML = `超額溢出: <span class="limit-val">${Math.abs(T-sum)}</span>`;
             kpiBoxTotal.style.borderColor = "var(--danger)";
         } else {
-            statusBox.innerHTML = `剩餘空缺: <span class="remain-val" style="color:var(--success);">${remain}</span>`;
+            statusBox.innerHTML = `剩餘員額: <span class="remain-val" style="color:var(--success);">${remain}</span>`;
             kpiBoxTotal.style.borderColor = "#eee";
         }
 
+        // --- 核心演算法 (修復數學漏洞版) ---
         const finalEmpty = remain; 
         const autoP1 = Math.max(0, Math.min(n2e, max_C - n1));
-        const n2_available_vacancies = Math.max(0, max_N1_N2 - (n1 + autoP1) - n2Total);
+        
+        const n2_available_vacancies = Math.max(0, max_N1_N2 - n1 - n2Total);
         
         const available_P2t_space = Math.max(0, max_D1 - n2t);
         const autoP2t = Math.max(0, Math.min(n3t, available_P2t_space, n2_available_vacancies));
@@ -635,51 +730,33 @@
         mainChart.update();
 
         // ============================================
-        // 模擬區防呆與圖表更新
+        // 模擬區防呆與圖表更新 (加入視覺回饋)
         // ============================================
         const simP1El = document.getElementById('sim-p1');
         const simP2tEl = document.getElementById('sim-p2t');
         const simP2eEl = document.getElementById('sim-p2e');
         const simE3El = document.getElementById('sim-e3');
         const simE4El = document.getElementById('sim-e4');
-        
-        // 初始載入時，自動填滿前四個項目的上限
-        if (isFirstLoad) {
-            const auto_p1 = Math.max(0, Math.min(n2e, max_C - n1));
-            simP1El.value = auto_p1;
-            
-            const auto_p2t = Math.max(0, Math.min(n3t, max_D1 - n2t, max_N1_N2 - (n1 + auto_p1) - n2Total));
-            simP2tEl.value = auto_p2t;
-            
-            const auto_p2e = Math.max(0, Math.min(n3e, max_N1_N2 - (n1 + auto_p1) - (n2Total + auto_p2t)));
-            simP2eEl.value = auto_p2e;
-            
-            const auto_e3_cap = Math.max(0, max_N1_N2 - (n1 + auto_p1) - (n2Total + auto_p2t + auto_p2e)); 
-            const auto_e3 = Math.max(0, Math.min(remain, auto_e3_cap)); // e4 is 0 initially
-            simE3El.value = auto_e3;
-
-            isFirstLoad = false;
-        }
 
         let sP1 = getVal('sim-p1');
         const max_sim_p1 = Math.max(0, Math.min(n2e, max_C - n1));
         if(sP1 > max_sim_p1) { sP1 = max_sim_p1; simP1El.value = sP1; }
-        setTxt('sim-max-p1', `Max: ${max_sim_p1}`);
+        updateMaxText('sim-max-p1', max_sim_p1, sP1);
 
         let sP2t = getVal('sim-p2t');
-        const max_sim_p2t = Math.max(0, Math.min(n3t, max_D1 - n2t, max_N1_N2 - (n1 + sP1) - n2Total));
+        const max_sim_p2t = Math.max(0, Math.min(n3t, max_D1 - n2t, max_N1_N2 - n1 - n2Total));
         if(sP2t > max_sim_p2t) { sP2t = max_sim_p2t; simP2tEl.value = sP2t; }
-        setTxt('sim-max-p2t', `Max: ${max_sim_p2t}`);
+        updateMaxText('sim-max-p2t', max_sim_p2t, sP2t);
 
         let sP2e = getVal('sim-p2e');
-        const max_sim_p2e = Math.max(0, Math.min(n3e, max_N1_N2 - (n1 + sP1) - (n2Total + sP2t)));
+        const max_sim_p2e = Math.max(0, Math.min(n3e, max_N1_N2 - n1 - n2Total - sP2t));
         if(sP2e > max_sim_p2e) { sP2e = max_sim_p2e; simP2eEl.value = sP2e; }
-        setTxt('sim-max-p2e', `Max: ${max_sim_p2e}`);
+        updateMaxText('sim-max-p2e', max_sim_p2e, sP2e);
 
         let sE4 = getVal('sim-e4');
         let sE3 = getVal('sim-e3');
 
-        const max_sim_e3_capacity = Math.max(0, max_N1_N2 - (n1 + sP1) - (n2Total + sP2t + sP2e)); 
+        const max_sim_e3_capacity = Math.max(0, max_N1_N2 - n1 - n2Total - sP2t - sP2e); 
         let max_sim_e3 = Math.max(0, Math.min(remain - sE4, max_sim_e3_capacity));
         if (sE3 > max_sim_e3) { sE3 = max_sim_e3; simE3El.value = sE3; }
         
@@ -687,8 +764,8 @@
         if (sE4 > max_sim_e4) { sE4 = max_sim_e4; simE4El.value = sE4; }
         
         max_sim_e3 = Math.max(0, Math.min(remain - sE4, max_sim_e3_capacity));
-        setTxt('sim-max-e3', `Max: ${max_sim_e3}`);
-        setTxt('sim-max-e4', `Max: ${max_sim_e4}`);
+        updateMaxText('sim-max-e3', max_sim_e3, sE3);
+        updateMaxText('sim-max-e4', max_sim_e4, sE4);
 
         // --- 計算總數 ---
         const sim_n1 = n1 + sP1;
@@ -740,4 +817,3 @@
 </script>
 </body>
 </html>
-
