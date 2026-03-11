@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>法院書記官內升及提列考試人數動態估算系統 (v3.2)</title>
+    <title>法院書記官內升及提列考試人數動態估算系統 (v3.3)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -152,7 +152,7 @@
     <div class="header">
         <div>
             <h1>法院書記官內升及提列考試人數動態估算系統</h1>
-            <div class="subtitle">v2.0</div>
+            <div class="subtitle">v3.3 (一鍵極大化 ✕ 動態連動修復版)</div>
         </div>
         <div class="total-input-wrapper">
             <label for="input-total">書記官預算員額總數 (T)</label>
@@ -403,10 +403,9 @@
                     }
                 });
                 
-                // 修復：即使是 0 人，也會霸氣顯示 0
                 if (sum >= 0) {
                     let drawY = topY - 5;
-                    if (sum === 0) drawY = yAxis.bottom - 5; // 若無資料，對齊 X 軸上方
+                    if (sum === 0) drawY = yAxis.bottom - 5; 
 
                     ctx.save();
                     ctx.textAlign = 'center';
@@ -426,16 +425,14 @@
         }
     };
 
-    // 強制防護：阻絕負數
     const getVal = (id) => Math.max(0, parseInt(document.getElementById(id).value) || 0);
     const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
 
-    // 視覺回饋防呆函數
     function updateMaxText(elId, maxVal, currentVal) {
         const el = document.getElementById(elId);
         if (maxVal === 0) {
             el.innerHTML = `Max: 0`;
-            el.style.color = '#9E9E9E'; // 沒有空間時顯示灰色
+            el.style.color = '#9E9E9E'; 
         } else if (currentVal >= maxVal) {
             el.innerHTML = `✅ 已達上限 (${maxVal})`;
             el.style.color = 'var(--success)';
@@ -446,6 +443,7 @@
     }
 
     let mainChart, simPieChart, simBarChart;
+    let isFirstLoad = true;
 
     function init() {
         const pieOptions = {
@@ -522,7 +520,6 @@
             }
         });
 
-        // 綁定輸入框與拉桿
         const bindSync = (sliderId, inputId) => {
             const slider = document.getElementById(sliderId);
             const input = document.getElementById(inputId);
@@ -537,7 +534,6 @@
                 safeCalculate(); 
             });
 
-            // 負數與溢出防呆
             input.addEventListener('change', () => {
                 const T = getVal('input-total');
                 let v = parseInt(input.value);
@@ -554,7 +550,6 @@
         
         document.getElementById('input-total').addEventListener('input', safeCalculate);
         
-        // 模擬區數字框防呆綁定
         ['sim-p1', 'sim-p2t', 'sim-p2e', 'sim-e3', 'sim-e4'].forEach(id => {
             const el = document.getElementById(id);
             el.addEventListener('input', safeCalculate);
@@ -565,14 +560,11 @@
             });
         });
 
-        // 綁定一鍵極大化按鈕
         document.getElementById('btn-maximize').addEventListener('click', applyMaximize);
 
-        // 網頁開啟自動填滿
         applyMaximize();
     }
 
-    // 獨立出來的「一鍵極大化」智能演算函數
     function applyMaximize() {
         const T = getVal('input-total');
         const n1 = getVal('input-n1');
@@ -600,7 +592,6 @@
         const auto_e3 = Math.max(0, Math.min(remain, auto_e3_cap)); 
         document.getElementById('sim-e3').value = auto_e3;
 
-        // 修復：完美補齊四等考試
         const auto_e4 = Math.max(0, remain - auto_e3);
         document.getElementById('sim-e4').value = auto_e4;
 
@@ -671,6 +662,10 @@
         setTxt('kpi-n2t-val', n2t); setTxt('limit-n2t', max_D1); setTxt('kpi-n2t-remain', Math.max(0, max_D1 - n2t));
 
         setTxt('kpi-sum', sum); setTxt('limit-total', T);
+        
+        // 【本次修復：將 sum 同步寫入中央圓餅圖中心數字】
+        setTxt('center-sum', sum);
+
         let remain = Math.max(0, T - sum);
         const isOverflow = sum > T;
         setTxt('kpi-remain', isOverflow ? Math.abs(T-sum) : remain);
@@ -686,7 +681,6 @@
             kpiBoxTotal.style.borderColor = "#eee";
         }
 
-        // --- 核心演算法 (修復數學漏洞版) ---
         const finalEmpty = remain; 
         const autoP1 = Math.max(0, Math.min(n2e, max_C - n1));
         
@@ -730,7 +724,7 @@
         mainChart.update();
 
         // ============================================
-        // 模擬區防呆與圖表更新 (加入視覺回饋)
+        // 模擬區防呆與圖表更新
         // ============================================
         const simP1El = document.getElementById('sim-p1');
         const simP2tEl = document.getElementById('sim-p2t');
@@ -767,7 +761,6 @@
         updateMaxText('sim-max-e3', max_sim_e3, sE3);
         updateMaxText('sim-max-e4', max_sim_e4, sE4);
 
-        // --- 計算總數 ---
         const sim_n1 = n1 + sP1;
         const sim_n2e = n2e - sP1 + sP2e + sE3;
         const sim_n2t = n2t + sP2t;
@@ -785,7 +778,6 @@
         simPieChart.data.datasets[1].backgroundColor[6] = sim_sum > T ? '#D32F2F' : '#E0E0E0';
         simPieChart.update();
 
-        // 分組堆疊長條圖寫入
         simBarChart.options.scales.y.suggestedMax = Math.max(n3Total, sim_n3Total) + 20; 
         simBarChart.data.datasets[0].data = [n1, sim_n1, 0, 0, 0, 0, 0, 0]; 
         simBarChart.data.datasets[1].data = [0, 0, 0, n2e, sim_n2e, 0, 0, 0]; 
