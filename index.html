@@ -33,17 +33,17 @@
         .header h1 { margin: 0; font-size: clamp(20px, 2vw, 26px); font-weight: 900; letter-spacing: 1px;}
         .header .subtitle { font-size: 15px; color: #CFD8DC; margin-top: 5px; font-weight: 500;}
         
-        /* 頂部備註框樣式 */
+        /* 頂部備註框樣式 - 放大字體與微調間距 */
         .header-warning {
             margin-top: 12px;
-            font-size: 13px;
+            font-size: 15px;
             color: #FFCDD2;
             background: rgba(0, 0, 0, 0.25);
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 6px;
             border-left: 4px solid #E53935;
             display: inline-block;
-            line-height: 1.4;
+            line-height: 1.5;
             font-weight: 500;
             max-width: 100%;
         }
@@ -168,7 +168,7 @@
     <div class="header">
         <div>
             <h1>法院書記官內升及提列考試人數動態估算系統</h1>
-            <div class="subtitle">v2.0</div>
+            <div class="subtitle">v3.4 (最終定案版)</div>
             
             <div class="header-warning">
                 ⚠ <b>備註：</b>「法院書記官員額受列管」或依司法院函不適用上限之但書情形，不完全適用本試算系統，法院須自行檢視確認。
@@ -183,7 +183,7 @@
 
     <div class="kpi-row">
         <div class="kpi-card gold" id="kpi-box-n1">
-            <div class="kpi-label">一等書記官 (N1)</div>
+            <div class="kpi-label">一等書記官空間 (N1)</div>
             <div class="kpi-value" id="kpi-n1">20</div>
             <div class="kpi-subtext">現有人數</div>
             <div class="kpi-limit-box">
@@ -316,7 +316,11 @@
                 <div class="decision-card-title" style="color:var(--primary-gold);">▶ 階段四：極大化後人力結構預估</div>
                 <div>
                     <div class="proj-row">🥇 一等總數 <div><span id="proj-n1-before">0</span> ➔ <span class="proj-after" id="proj-n1-after">0</span></div></div>
-                    <div class="proj-row">🥈 二等總數 <div><span id="proj-n2-before">0</span> ➔ <span class="proj-after" id="proj-n2-after">0</span></div></div>
+                    <div class="proj-row" style="margin-bottom: 4px;">🥈 二等總數 <div><span id="proj-n2-before">0</span> ➔ <span class="proj-after" id="proj-n2-after">0</span></div></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 12px 10px 12px; font-size: 13px; color: #80CBC4; font-weight: bold;">
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;↳ 其中訓練資格</span>
+                        <div><span id="proj-n2t-before">0</span> ➔ <span style="font-size: 16px; font-weight: 900; color: #80CBC4; width: 40px; text-align: right; display: inline-block;" id="proj-n2t-after">0</span></div>
+                    </div>
                     <div class="proj-row">🥉 三等總數 <div><span id="proj-n3-before">0</span> ➔ <span class="proj-after" style="color:#90CAF9;" id="proj-n3-after">0</span></div></div>
                     <div class="proj-row total" style="color:var(--primary-gold);">🎯 全院總計 <div><span id="proj-tot-before">0</span> ➔ <span class="proj-after" id="proj-tot-after">0</span></div></div>
                 </div>
@@ -344,14 +348,14 @@
                     </div>
                 </div>
                 <div class="sim-input-row">
-                    <label>內升二等 (從具升薦任訓練資格)</label>
+                    <label>內升二等 (從三等訓練)</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
                         <input type="number" id="sim-p2t" value="0" min="0" onfocus="this.select()">
                         <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p2t">Max: 0</div>
                     </div>
                 </div>
                 <div class="sim-input-row">
-                    <label>內升二等 (從具升薦任考試資格)</label>
+                    <label>內升二等 (從三等考試)</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
                         <input type="number" id="sim-p2e" value="0" min="0" onfocus="this.select()">
                         <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p2e">Max: 0</div>
@@ -727,6 +731,7 @@
 
         setTxt('proj-n1-before', n1); setTxt('proj-n1-after', n1 + autoP1);
         setTxt('proj-n2-before', n2Total); setTxt('proj-n2-after', n2Total - autoP1 + autoP2t + autoP2e + autoE3);
+        setTxt('proj-n2t-before', n2t); setTxt('proj-n2t-after', n2t + autoP2t);
         setTxt('proj-n3-before', n3Total); setTxt('proj-n3-after', n3Total - autoP2t - autoP2e + autoE4);
         setTxt('proj-tot-before', sum); setTxt('proj-tot-after', n1 + n2Total + n3Total + autoE3 + autoE4);
 
