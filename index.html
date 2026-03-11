@@ -500,7 +500,7 @@
         simPieChart = new Chart(ctxSimPie, {
             type: 'doughnut',
             data: { 
-                labels: ['一等', '二等(考試)', '二等(訓練)', '三等(考試)', '三等(訓練)', '三等(無資格)', '未分配'],
+                labels: ['一等', '二等(考試)', '二等(訓練)', '三等(考試)', '三等(訓練)', '三等(未具二等資格)', '未分配'],
                 datasets: [
                     { data: [0,0,0,0,0,0,0], backgroundColor: ['rgba(197, 160, 89, 0.2)', 'rgba(0, 137, 123, 0.2)', 'transparent', 'rgba(26, 47, 76, 0.05)', 'transparent', 'transparent', 'transparent'], borderWidth: 1, borderColor: '#fff', weight: 0.25 },
                     { data: [0,0,0,0,0,0,0], backgroundColor: ['#C5A059', '#00897B', '#4DB6AC', '#1A2F4C', '#455A64', '#90A4AE', '#E0E0E0'], borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }
@@ -520,7 +520,7 @@
                     { label: '二等(訓練)', data: Array(8).fill(0), backgroundColor: '#4DB6AC' },
                     { label: '三等(考試)', data: Array(8).fill(0), backgroundColor: '#1A2F4C' },
                     { label: '三等(訓練)', data: Array(8).fill(0), backgroundColor: '#455A64' },
-                    { label: '三等(無資格)', data: Array(8).fill(0), backgroundColor: '#90A4AE' }
+                    { label: '三等(未具二等資格)', data: Array(8).fill(0), backgroundColor: '#90A4AE' }
                 ]
             },
             options: {
