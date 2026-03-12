@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>法院書記官內升及提列考試人數動態估算系統 (v3.4)</title>
+    <title>法院書記官內升及提列考試人數動態估算系統 (v2.0)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -33,18 +33,18 @@
         .header h1 { margin: 0; font-size: clamp(20px, 2vw, 26px); font-weight: 900; letter-spacing: 1px;}
         .header .subtitle { font-size: 15px; color: #CFD8DC; margin-top: 5px; font-weight: 500;}
         
-        /* 頂部備註框樣式 - 放大字體與微調間距 */
-        .header-warning {
-            margin-top: 12px;
+        /* 底部備註框樣式 (因移至底部淺色區，調整為紅底紅字提示) */
+        .footer-warning {
+            margin-top: 10px;
             font-size: 15px;
-            color: #FFCDD2;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 10px 14px;
-            border-radius: 6px;
-            border-left: 4px solid #E53935;
+            color: var(--danger);
+            background: #FFEBEE;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 5px solid var(--danger);
             display: inline-block;
             line-height: 1.5;
-            font-weight: 500;
+            font-weight: 700;
             max-width: 100%;
         }
 
@@ -169,11 +169,6 @@
         <div>
             <h1>法院書記官內升及提列考試人數動態估算系統</h1>
             <div class="subtitle">v2.0</div>
-            
-            <div class="header-warning">
-                ⚠ <b>備註：</b>「法院書記官員額受列管」或依司法院函不適用上限之但書情形，不完全適用本試算系統，法院須自行檢視確認。
-            </div>
-
         </div>
         <div class="total-input-wrapper">
             <label for="input-total">書記官預算員額總數 (T)</label>
@@ -399,6 +394,10 @@
                 <div class="rule-item" id="sim-rule-n2q"><i>✔</i> 試算訓練資格 ≤ 總額 1/4 之 2/3</div>
             </div>
         </div>
+    </div>
+
+    <div class="footer-warning">
+        ⚠ <b>備註：</b>「法院書記官員額受列管」或依司法院函不適用上限之但書情形，不完全適用本試算系統，法院須自行檢視確認。
     </div>
 </div>
 
@@ -834,4 +833,3 @@
 </script>
 </body>
 </html>
-
