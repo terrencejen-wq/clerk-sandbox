@@ -80,6 +80,11 @@
         .slider-group-title { font-size: 15px; font-weight: 900; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid; padding-left: 8px;}
         .slider-group-title.gold { color: var(--primary-gold); border-color: var(--primary-gold); } .slider-group-title.teal { color: var(--primary-teal); border-color: var(--primary-teal); } .slider-group-title.navy { color: var(--primary-navy); border-color: var(--primary-navy); }
         
+        /* 新增：職等總數徽章樣式 */
+        .badge-total { padding: 3px 8px; border-radius: 12px; font-size: 13px; font-weight: 900; margin-left: auto; letter-spacing: 0.5px;}
+        .badge-teal { background: #E0F2F1; color: var(--primary-teal); }
+        .badge-navy { background: #E8EAF6; color: var(--primary-navy); }
+
         .slider-row { display: grid; grid-template-columns: 1fr 80px; gap: 15px; align-items: flex-end; margin-bottom: 12px; }
         .slider-row:last-child { margin-bottom: 0; }
         .slider-label { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: block; color: #555; }
@@ -226,7 +231,10 @@
                 </div>
             </div>
             <div class="slider-group-box" id="group-n2">
-                <div class="slider-group-title teal"><span>二等書記官 (依資格)</span></div>
+                <div class="slider-group-title teal">
+                    <span>二等書記官 (依資格)</span> 
+                    <span class="badge-total badge-teal" id="badge-n2-total">[總計 48 人]</span>
+                </div>
                 <div class="slider-row">
                     <div><label class="slider-label" style="color:var(--primary-teal);"><span class="color-dot bg-teal-dark"></span>具考試資格</label>
                     <input type="range" id="slider-n2e" class="range-teal-dark" min="0" value="15"></div>
@@ -239,7 +247,10 @@
                 </div>
             </div>
             <div class="slider-group-box" id="group-n3" style="margin-bottom: 0;">
-                <div class="slider-group-title navy"><span>三等書記官 (依資格)</span></div>
+                <div class="slider-group-title navy">
+                    <span>三等書記官 (依資格)</span> 
+                    <span class="badge-total badge-navy" id="badge-n3-total">[總計 215 人]</span>
+                </div>
                 <div class="slider-row">
                     <div><label class="slider-label" style="color:var(--primary-navy);"><span class="color-dot bg-navy-dark"></span>具考試資格</label>
                     <input type="range" id="slider-n3e" class="range-navy-dark" min="0" value="10"></div>
@@ -668,6 +679,10 @@
         const n3Total = n3e + n3t + n3n;
         const sum = n1 + n2Total + n3Total;
 
+        // 【新增】：更新二等與三等的動態總數徽章
+        setTxt('badge-n2-total', `[總計 ${n2Total} 人]`);
+        setTxt('badge-n3-total', `[總計 ${n3Total} 人]`);
+
         ['slider-n1', 'slider-n2e', 'slider-n2t', 'slider-n3e', 'slider-n3t', 'slider-n3n'].forEach(id => {
             document.getElementById(id).max = T;
         });
@@ -741,6 +756,9 @@
 
         if(sum > T) showHudAlert('total', `總人數超出員額限制`); else clearHudAlert('total');
         if(n1+n2Total > max_N1_N2) showHudAlert('law1', `一二等總和超過聯合上限`); else clearHudAlert('law1');
+        
+        if(n1 > max_C) showHudAlert('law2', `一等總數超過法定上限`); else clearHudAlert('law2');
+        if(n2t > max_D1) showHudAlert('n2q', `二等訓練資格超過法定上限`); else clearHudAlert('n2q');
 
         mainChart.data.datasets[0].data = [max_C, max_N1_N2 - max_C, Math.max(0, T - max_N1_N2), 0,0,0,0];
         mainChart.data.datasets[1].data = [n1, n2e, n2t, n3e, n3t, n3n, isOverflow ? Math.abs(T-sum) : remain];
@@ -833,5 +851,3 @@
 </script>
 </body>
 </html>
-
-
