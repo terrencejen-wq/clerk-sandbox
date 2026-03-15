@@ -183,7 +183,7 @@
 
     <div class="kpi-row">
         <div class="kpi-card gold" id="kpi-box-n1">
-            <div class="kpi-label">一等書記官空間 (N1)</div>
+            <div class="kpi-label">一等書記官 (N1)</div>
             <div class="kpi-value" id="kpi-n1">20</div>
             <div class="kpi-subtext">現有人數</div>
             <div class="kpi-limit-box">
@@ -201,7 +201,7 @@
             </div>
         </div>
         <div class="kpi-card navy" id="kpi-box-n3">
-            <div class="kpi-label">二等書記官委升薦訓練資格 (N2t)</div>
+            <div class="kpi-label">二等書記官委升薦訓練合格 (N2t)</div>
             <div class="kpi-value" id="kpi-n2t-val">33</div>
             <div class="kpi-subtext">現有人數</div>
             <div class="kpi-limit-box">
@@ -232,32 +232,32 @@
             </div>
             <div class="slider-group-box" id="group-n2">
                 <div class="slider-group-title teal">
-                    <span>二等書記官 (依資格)</span> 
+                    <span>二等書記官</span> 
                     <span class="badge-total badge-teal" id="badge-n2-total">[總計 48 人]</span>
                 </div>
                 <div class="slider-row">
-                    <div><label class="slider-label" style="color:var(--primary-teal);"><span class="color-dot bg-teal-dark"></span>具考試資格</label>
+                    <div><label class="slider-label" style="color:var(--primary-teal);"><span class="color-dot bg-teal-dark"></span>考試及格</label>
                     <input type="range" id="slider-n2e" class="range-teal-dark" min="0" value="15"></div>
                     <input type="number" id="input-n2e" class="number-input" value="15" onfocus="this.select()">
                 </div>
                 <div class="slider-row">
-                    <div><label class="slider-label" style="color:var(--teal-light);"><span class="color-dot bg-teal-light"></span>具訓練資格</label>
+                    <div><label class="slider-label" style="color:var(--teal-light);"><span class="color-dot bg-teal-light"></span>訓練合格</label>
                     <input type="range" id="slider-n2t" class="range-teal-light" min="0" value="33"></div>
                     <input type="number" id="input-n2t" class="number-input" value="33" onfocus="this.select()">
                 </div>
             </div>
             <div class="slider-group-box" id="group-n3" style="margin-bottom: 0;">
                 <div class="slider-group-title navy">
-                    <span>三等書記官 (依資格)</span> 
+                    <span>三等書記官</span> 
                     <span class="badge-total badge-navy" id="badge-n3-total">[總計 215 人]</span>
                 </div>
                 <div class="slider-row">
-                    <div><label class="slider-label" style="color:var(--primary-navy);"><span class="color-dot bg-navy-dark"></span>具考試資格</label>
+                    <div><label class="slider-label" style="color:var(--primary-navy);"><span class="color-dot bg-navy-dark"></span>考試及格</label>
                     <input type="range" id="slider-n3e" class="range-navy-dark" min="0" value="10"></div>
                     <input type="number" id="input-n3e" class="number-input" value="10" onfocus="this.select()">
                 </div>
                 <div class="slider-row">
-                    <div><label class="slider-label" style="color:var(--navy-medium);"><span class="color-dot bg-navy-medium"></span>具訓練資格</label>
+                    <div><label class="slider-label" style="color:var(--navy-medium);"><span class="color-dot bg-navy-medium"></span>訓練合格</label>
                     <input type="range" id="slider-n3t" class="range-navy-medium" min="0" value="30"></div>
                     <input type="number" id="input-n3t" class="number-input" value="30" onfocus="this.select()">
                 </div>
@@ -285,7 +285,7 @@
                     <div class="rule-item" id="rule-total"><i>✔</i> 總人數 ≤ 預算總額</div>
                     <div class="rule-item" id="rule-law1"><i>✔</i> 一加二等總數 ≤ 總額 1/2</div>
                     <div class="rule-item" id="rule-law2"><i>✔</i> 一等總數 ≤ 總額 1/4</div>
-                    <div class="rule-item" id="rule-n2q"><i>✔</i> 二等訓練資格 ≤ 總額 1/4 之 2/3</div>
+                    <div class="rule-item" id="rule-n2q"><i>✔</i> 二等訓練合格 ≤ 總額 1/4 之 2/3</div>
                 </div>
             </div>
         </div>
@@ -304,8 +304,8 @@
                 <div class="decision-card-title">▶ 階段二：遞補二等書記官</div>
                 <div style="font-size: 15px; color: #E0E0E0; line-height: 1.6;">
                     預估二等最大可用職缺為 <strong style="color:#fff;">[<span id="dec-n2-vacancies">0</span>]</strong> 個。極大化計算配置如下：<br>
-                    1. 具委升薦訓練資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2t">0</span></strong> 名<br>
-                    2. 具升薦任考試資格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2e">0</span></strong> 名<br>
+                    1. 委升薦訓練合格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2t">0</span></strong> 名<br>
+                    2. 薦任考試及格最大可內升： <strong style="color:#fff;">+<span id="dec-auto-p2e">0</span></strong> 名<br>
                     3. 剩餘最大得提報「三等考試」：<span class="decision-highlight" id="dec-auto-e3">0</span> 名。
                 </div>
             </div>
@@ -324,7 +324,7 @@
                     <div class="proj-row">🥇 一等總數 <div><span id="proj-n1-before">0</span> ➔ <span class="proj-after" id="proj-n1-after">0</span></div></div>
                     <div class="proj-row" style="margin-bottom: 4px;">🥈 二等總數 <div><span id="proj-n2-before">0</span> ➔ <span class="proj-after" id="proj-n2-after">0</span></div></div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 12px 10px 12px; font-size: 13px; color: #80CBC4; font-weight: bold;">
-                        <span>&nbsp;&nbsp;&nbsp;&nbsp;↳ 其中訓練資格</span>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;↳ 其中訓練合格</span>
                         <div><span id="proj-n2t-before">0</span> ➔ <span style="font-size: 16px; font-weight: 900; color: #80CBC4; width: 40px; text-align: right; display: inline-block;" id="proj-n2t-after">0</span></div>
                     </div>
                     <div class="proj-row">🥉 三等總數 <div><span id="proj-n3-before">0</span> ➔ <span class="proj-after" style="color:#90CAF9;" id="proj-n3-after">0</span></div></div>
@@ -354,14 +354,14 @@
                     </div>
                 </div>
                 <div class="sim-input-row">
-                    <label>內升二等 (具訓練資格)</label>
+                    <label>內升二等 (訓練合格)</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
                         <input type="number" id="sim-p2t" value="0" min="0" onfocus="this.select()">
                         <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p2t">Max: 0</div>
                     </div>
                 </div>
                 <div class="sim-input-row">
-                    <label>內升二等 (具考試資格)</label>
+                    <label>內升二等 (考試及格)</label>
                     <div style="display:flex; flex-direction:column; align-items:flex-end;">
                         <input type="number" id="sim-p2e" value="0" min="0" onfocus="this.select()">
                         <div style="font-size:12px; color:#7986CB; font-weight:bold; margin-top:2px; transition:0.3s;" id="sim-max-p2e">Max: 0</div>
@@ -402,7 +402,7 @@
                 <div class="rule-item" id="sim-rule-total"><i>✔</i> 試算總人數 ≤ 預算總額</div>
                 <div class="rule-item" id="sim-rule-law1"><i>✔</i> 試算一加二等 ≤ 總額 1/2</div>
                 <div class="rule-item" id="sim-rule-law2"><i>✔</i> 試算一等總數 ≤ 總額 1/4</div>
-                <div class="rule-item" id="sim-rule-n2q"><i>✔</i> 試算訓練資格 ≤ 總額 1/4 之 2/3</div>
+                <div class="rule-item" id="sim-rule-n2q"><i>✔</i> 試算訓練合格 ≤ 總額 1/4 之 2/3</div>
             </div>
         </div>
     </div>
@@ -758,7 +758,7 @@
         if(n1+n2Total > max_N1_N2) showHudAlert('law1', `一二等總和超過聯合上限`); else clearHudAlert('law1');
         
         if(n1 > max_C) showHudAlert('law2', `一等總數超過法定上限`); else clearHudAlert('law2');
-        if(n2t > max_D1) showHudAlert('n2q', `二等訓練資格超過法定上限`); else clearHudAlert('n2q');
+        if(n2t > max_D1) showHudAlert('n2q', `二等訓練合格超過法定上限`); else clearHudAlert('n2q');
 
         mainChart.data.datasets[0].data = [max_C, max_N1_N2 - max_C, Math.max(0, T - max_N1_N2), 0,0,0,0];
         mainChart.data.datasets[1].data = [n1, n2e, n2t, n3e, n3t, n3n, isOverflow ? Math.abs(T-sum) : remain];
