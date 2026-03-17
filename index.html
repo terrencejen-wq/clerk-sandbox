@@ -48,6 +48,21 @@
             max-width: 100%;
         }
 
+        /* 新增：底部邏輯說明框樣式 */
+        .footer-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #3949AB;
+            background: #E8EAF6;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 5px solid #5C6BC0;
+            display: inline-block;
+            line-height: 1.5;
+            font-weight: 700;
+            max-width: 100%;
+        }
+
         .total-input-wrapper { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 8px; flex-wrap: wrap;}
         .total-input-wrapper label { font-size: 18px; font-weight: 700; }
         .number-input-large { width: 120px; padding: 8px; border: 2px solid var(--primary-gold); border-radius: 6px; text-align: center; font-weight: 900; font-size: 22px; color: var(--primary-navy); }
@@ -285,7 +300,7 @@
                     <div class="rule-item" id="rule-total"><i>✔</i> 總人數 ≤ 預算總額</div>
                     <div class="rule-item" id="rule-law1"><i>✔</i> 一加二等總數 ≤ 總額 1/2</div>
                     <div class="rule-item" id="rule-law2"><i>✔</i> 一等總數 ≤ 總額 1/4</div>
-                    <div class="rule-item" id="rule-n2q"><i>✔</i> 二等訓練合格 ≤ (聯合上限-一等上限) × 2/3</div>
+                    <div class="rule-item" id="rule-n2q"><i>✔</i> 二等委升薦訓練合格 ≤ (薦任上限-一等上限) × 2/3</div>
                 </div>
             </div>
         </div>
@@ -402,13 +417,18 @@
                 <div class="rule-item" id="sim-rule-total"><i>✔</i> 試算總人數 ≤ 預算總額</div>
                 <div class="rule-item" id="sim-rule-law1"><i>✔</i> 試算一加二等 ≤ 總額 1/2</div>
                 <div class="rule-item" id="sim-rule-law2"><i>✔</i> 試算一等總數 ≤ 總額 1/4</div>
-                <div class="rule-item" id="sim-rule-n2q"><i>✔</i> 試算訓練合格 ≤ (聯合上限-一等上限) × 2/3</div>
+                <div class="rule-item" id="sim-rule-n2q"><i>✔</i> 試算二等委升薦訓練合格 ≤ (薦任上限-一等上限) × 2/3</div>
             </div>
         </div>
     </div>
 
-    <div class="footer-warning">
-        ⚠ <b>備註：</b>「法院書記官員額受列管」或依司法院函不適用上限之但書情形，不完全適用本試算系統，法院須自行檢視確認。
+    <div style="display: flex; flex-direction: column; gap: 0;">
+        <div class="footer-warning">
+            ⚠ <b>備註：</b>「法院書記官員額受列管」或依司法院函不適用上限之但書情形，不完全適用本試算系統，法院須自行檢視確認。
+        </div>
+        <div class="footer-info">
+            💡 <b>計算邏輯說明：</b>本系統中「二等委升薦訓練合格」之上限，計算方式為：<span style="background: rgba(255,255,255,0.7); padding: 2px 6px; border-radius: 4px; color: #1A2F4C; margin-left: 4px; font-family: monospace;">(薦任上限 － 一等上限) × 2/3，無條件捨去。</span>
+        </div>
     </div>
 </div>
 
